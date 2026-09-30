@@ -1,0 +1,1570 @@
+<title>Jewellery Palace BJS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cinzel:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: espresso bands framing a cream editorial grid; display type does the
+   heavy lifting, brass appears only as rules, seals and one word at a time. */
+:root{
+  --cream:#FAF6F0; --paper:#FFFDF9; --sand:#F1E9DC; --dune:#E8DCCA;
+  --espresso:#1C1714; --coal:#3A322A;
+  --brass:#B08D4F; --brass-d:#8E6E37; --brass-l:#D8BD86; --brass-wash:#F6EEDE;
+  --ink:#231D18; --soft:#6B6055; --faint:#9C9086;
+  --line:#E4D9C7; --line-2:#F0E8DA;
+  --rose:#8E4A4E; --ok:#4A6B51; --amber:#A9701F;
+  --display:'Playfair Display',Georgia,'Times New Roman',serif;
+  --wordmark:'Cinzel','Playfair Display',Georgia,serif;
+  --body:'Jost',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --shadow:0 2px 4px rgba(28,23,20,.03),0 18px 44px -24px rgba(28,23,20,.30);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance;letter-spacing:-.005em}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:28px}
+.lbl{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;font-weight:500}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- sticky stack ---------- */
+.stack{position:sticky;top:env(safe-area-inset-top,0px);z-index:60}
+.protobar{background:var(--espresso);color:#D8CCBC}
+.protobar .wrap{display:flex;align-items:center;gap:16px;min-height:38px;flex-wrap:wrap;padding-block:7px}
+.protobar .lbl{font-size:9.5px;color:#9A8D7E}
+.protobar b{color:var(--brass-l);font-weight:500}
+.sp{flex:1}
+.modeswitch{display:flex;border:1px solid #3B3229}
+.modeswitch button{background:none;border:0;padding:5px 13px;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:#9A8D7E;cursor:pointer}
+.modeswitch button[aria-pressed=true]{background:var(--brass);color:#1C1714}
+
+header.store{background:rgba(250,246,240,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header.store .wrap{display:flex;align-items:center;gap:26px;min-height:74px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:13px;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.brand .seal{width:40px;height:40px;flex:none;border-radius:50%;background:var(--espresso);color:var(--brass-l);display:grid;place-items:center;font-family:var(--wordmark);font-weight:600;font-size:16px;letter-spacing:.04em}
+.brand .nm{font-family:var(--wordmark);font-weight:600;font-size:19px;line-height:1.05;display:block;letter-spacing:.07em;text-transform:uppercase}
+.brand .sub{font-size:8.5px;letter-spacing:.34em;color:var(--faint);text-transform:uppercase;font-weight:500;display:block;margin-top:5px}
+nav.main{display:flex;gap:28px}
+nav.main button{background:none;border:0;padding:8px 0;cursor:pointer;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--soft);position:relative}
+nav.main button::after{content:'';position:absolute;left:0;right:0;bottom:2px;height:1px;background:var(--brass);transform:scaleX(0);transition:transform .25s ease}
+nav.main button:hover::after,nav.main button[data-on=true]::after{transform:scaleX(1)}
+nav.main button[data-on=true]{color:var(--ink)}
+.hact{display:flex;align-items:center;gap:4px}
+.iconbtn{background:none;border:0;padding:8px;cursor:pointer;display:flex;align-items:center;color:var(--soft);position:relative}
+.iconbtn:hover{color:var(--ink)}
+.iconbtn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.3}
+.cartcount{position:absolute;top:0;right:-2px;background:var(--brass);color:#fff;font-size:9px;font-weight:600;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center;padding:0 4px;line-height:1}
+.burger{display:none}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--espresso);background:var(--espresso);color:var(--cream);padding:13px 26px;cursor:pointer;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;transition:background .2s,color .2s,border-color .2s}
+.btn:hover{background:var(--brass-d);border-color:var(--brass-d);color:#fff}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--cream)}
+.btn.brass{background:var(--brass);border-color:var(--brass);color:#fff}
+.btn.brass:hover{background:var(--brass-d);border-color:var(--brass-d)}
+.btn.onDark{border-color:var(--brass-l);background:none;color:var(--brass-l)}
+.btn.onDark:hover{background:var(--brass-l);color:var(--espresso)}
+.btn.sm{padding:9px 16px;font-size:10px;letter-spacing:.16em}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.link{background:none;border:0;padding:0 0 2px;cursor:pointer;color:var(--brass-d);border-bottom:1px solid currentColor;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+
+/* ---------- artwork ---------- */
+.media{position:relative;aspect-ratio:1;max-width:100%;overflow:hidden}
+.media svg{width:100%;height:100%;display:block;transition:transform .7s cubic-bezier(.2,.7,.25,1)}
+.media .tag{position:absolute;top:14px;left:14px;background:var(--espresso);color:var(--brass-l);font-size:8.5px;letter-spacing:.2em;padding:5px 10px;text-transform:uppercase;font-weight:500}
+.media .tag.rose{background:var(--rose);color:#fff}
+
+/* ---------- product card ---------- */
+.grid{display:grid;gap:34px 26px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.pcard{background:none;border:0;padding:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;min-width:0}
+.pcard .media{border:1px solid var(--line-2)}
+.pcard:hover .media svg{transform:scale(1.07)}
+.pcard .nm{font-family:var(--display);font-weight:600;font-size:18.5px;line-height:1.28;margin-top:16px}
+.pcard .meta{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-top:7px;font-weight:500}
+.pcard .pr{font-size:15px;margin-top:11px}
+
+/* ---------- sections ---------- */
+.band{padding-block:88px}
+.band.tight{padding-block:56px}
+.band.sand{background:var(--sand)}
+.band.dark{background:var(--espresso);color:#A29586}
+.band.dark h2,.band.dark h3{color:#F4EBDE}
+.shead{margin-bottom:44px;display:flex;align-items:flex-end;justify-content:space-between;gap:26px;flex-wrap:wrap}
+.shead h2{font-size:clamp(28px,4vw,42px);line-height:1.08}
+.shead .lbl{color:var(--brass-d);display:block;margin-bottom:16px}
+.band.dark .shead .lbl{color:var(--brass-l)}
+.shead p{color:var(--soft);font-size:14.5px;max-width:50ch;margin-top:12px}
+.band.dark .shead p{color:#A29586}
+
+/* hero */
+.hero{background:var(--espresso);color:#A89B8C;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(70% 90% at 78% 30%,rgba(176,141,79,.16),transparent 62%);pointer-events:none}
+.hero .wrap{display:grid;grid-template-columns:1fr .86fr;gap:64px;align-items:center;padding-block:84px;position:relative;z-index:1}
+.hero .lbl{color:var(--brass-l);display:block;margin-bottom:22px}
+.hero h1{font-size:clamp(36px,5.6vw,66px);line-height:1.06;color:#F6EEE2;letter-spacing:-.015em;font-weight:600}
+.hero h1 em{font-style:italic;color:var(--brass-l)}
+.hero .lede{color:#A89B8C;font-size:16px;max-width:42ch;margin-top:24px}
+.hero .cta{display:flex;gap:14px;margin-top:36px;flex-wrap:wrap}
+.hero .assure{display:flex;gap:40px;margin-top:52px;padding-top:26px;border-top:1px solid #3B3229;flex-wrap:wrap}
+.hero .assure b{font-family:var(--display);font-weight:600;font-size:23px;color:var(--brass-l);display:block;line-height:1}
+.hero .assure span{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#877B6D;display:block;margin-top:8px;font-weight:500}
+.heroart{position:relative}
+.heroart .media{border:1px solid #453A30}
+.heroart .plate{position:absolute;left:-28px;bottom:32px;background:var(--cream);color:var(--ink);padding:18px 24px;box-shadow:0 20px 50px -24px rgba(0,0,0,.6)}
+.heroart .plate b{font-family:var(--display);font-weight:600;font-size:20px;display:block;line-height:1.15}
+.heroart .plate span{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);font-weight:500}
+
+/* category row */
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ccard{background:none;border:0;padding:0;cursor:pointer;text-align:left;min-width:0}
+.ccard .media{aspect-ratio:5/4;border:1px solid var(--line-2)}
+.ccard:hover .media svg{transform:scale(1.06)}
+.ccard .cap{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-top:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.ccard .cap b{font-family:var(--display);font-size:19px;font-weight:600}
+.ccard .cap span{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:500;white-space:nowrap}
+.ccard p{font-size:13px;color:var(--soft);margin-top:10px}
+
+/* editorial split */
+.split{display:grid;grid-template-columns:1fr 1fr;align-items:stretch;border:1px solid #3B3229}
+.split .art{position:relative;min-height:360px}
+.split .art .media{height:100%;aspect-ratio:auto;position:absolute;inset:0}
+.split .txt{padding:58px 54px}
+.split .txt .lbl{color:var(--brass-l);display:block;margin-bottom:18px}
+.split .txt h3{font-size:clamp(26px,3.2vw,38px);line-height:1.1}
+.split .txt p{color:#A29586;margin-top:18px;font-size:14.5px;max-width:42ch}
+.split .txt .btn{margin-top:34px}
+
+/* pillars */
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.pillars article{padding:38px 36px 6px 0}
+.pillars article+article{padding-left:36px;border-left:1px solid var(--line)}
+.pillars .num{font-family:var(--wordmark);font-weight:700;font-size:13px;color:var(--brass-d);letter-spacing:.24em;display:block;margin-bottom:18px}
+.pillars h3{font-size:23px;margin-bottom:10px}
+.pillars p{font-size:13.5px;color:var(--soft)}
+
+/* ---------- catalogue ---------- */
+.crumb{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);padding-block:26px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-weight:500}
+.crumb button{background:none;border:0;padding:0;cursor:pointer;color:var(--faint);font:inherit}
+.crumb button:hover{color:var(--brass-d)}
+.catwrap{display:grid;grid-template-columns:220px 1fr;gap:56px;align-items:start}
+.filters{position:sticky;top:170px;display:flex;flex-direction:column;gap:30px}
+.fgroup h4{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);font-weight:600;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.fgroup label{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;cursor:pointer;color:var(--soft)}
+.fgroup label:hover{color:var(--ink)}
+.fgroup input[type=checkbox]{accent-color:var(--brass);width:14px;height:14px}
+.fgroup .ct{margin-left:auto;font-size:11px;color:var(--faint)}
+.fgroup input[type=search]{border:0;border-bottom:1px solid var(--line);background:none;padding:9px 0;font-size:14px;width:100%}
+.fgroup input[type=search]:focus{outline:none;border-color:var(--brass)}
+input[type=range]{width:100%;accent-color:var(--brass)}
+.catbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:34px;flex-wrap:wrap}
+.catbar .ct{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);font-weight:500}
+select.sort{border:0;border-bottom:1px solid var(--line);background:none;padding:7px 0;font-size:13px;cursor:pointer}
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:26px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);padding:6px 12px;font-size:10px;letter-spacing:.14em;cursor:pointer;text-transform:uppercase;font-weight:600;color:var(--soft)}
+.chip:hover{border-color:var(--brass);color:var(--brass-d)}
+.empty{text-align:center;padding:80px 24px;border:1px solid var(--line);background:var(--paper)}
+.empty h3{font-size:24px;margin-bottom:10px}
+.empty p{color:var(--soft);font-size:14px;margin-bottom:22px}
+
+/* ---------- product detail ---------- */
+.pdp{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:start;padding-bottom:88px}
+.pgal{display:flex;flex-direction:column;gap:12px}
+.pgal .media{border:1px solid var(--line)}
+.zoomwrap{cursor:zoom-in}
+.zoomwrap.on svg{transform:scale(2.2)}
+.zoomhint{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);text-align:center;font-weight:500}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.thumbs button{padding:0;border:1px solid var(--line);cursor:pointer;aspect-ratio:1;overflow:hidden;background:none}
+.thumbs button[data-on=true]{border-color:var(--brass)}
+.thumbs svg{width:100%;height:100%}
+.pdp .lbl{color:var(--brass-d);display:block;margin-bottom:16px}
+.pdp h1{font-size:clamp(30px,4.2vw,46px);line-height:1.08}
+.pdp .price{font-size:26px;margin-top:20px;font-family:var(--display);font-weight:600}
+.pdp .price small{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-left:14px;font-family:var(--body);font-weight:600}
+.pdp .desc{color:var(--soft);margin-top:22px;max-width:50ch;font-size:15px}
+.specs{display:grid;grid-template-columns:repeat(2,1fr);margin-top:34px;border-top:1px solid var(--line)}
+.specs div{padding:16px 20px 16px 0;border-bottom:1px solid var(--line);min-width:0}
+.specs dt{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:6px}
+.specs dd{margin:0;font-size:14.5px}
+.buyrow{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.buyrow .btn{flex:1;min-width:180px}
+.qty{display:flex;align-items:center;border:1px solid var(--ink)}
+.qty button{background:none;border:0;width:42px;height:48px;cursor:pointer;font-size:17px;color:var(--soft)}
+.qty button:hover{color:var(--brass-d)}
+.qty span{width:34px;text-align:center;font-size:14px}
+.trustrow{display:flex;gap:26px;margin-top:26px;flex-wrap:wrap}
+.trustrow div{display:flex;gap:9px;align-items:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);font-weight:600}
+.trustrow svg{width:17px;height:17px;stroke:var(--brass-d);fill:none;stroke-width:1.3;flex:none}
+.acc{margin-top:38px;border-top:1px solid var(--line)}
+.acc details{border-bottom:1px solid var(--line)}
+.acc summary{padding:17px 0;cursor:pointer;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::after{content:'+';color:var(--brass-d);font-size:16px}
+.acc details[open] summary::after{content:'\2013'}
+.acc .body{padding-bottom:20px;font-size:14px;color:var(--soft);max-width:54ch}
+.acc .body ul{margin:8px 0 0;padding-left:18px}
+.acc .body li{margin-bottom:6px}
+
+/* ---------- cart drawer ---------- */
+.overlay{position:fixed;inset:0;background:rgba(28,23,20,.5);z-index:90;animation:fade .22s ease}
+@keyframes fade{from{opacity:0}}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--cream);z-index:91;display:flex;flex-direction:column;box-shadow:-30px 0 70px -40px rgba(0,0,0,.7);animation:slide .28s cubic-bezier(.2,.8,.3,1)}
+@keyframes slide{from{transform:translateX(100%)}}
+.drawer>header{display:flex;align-items:center;justify-content:space-between;padding:24px 26px;border-bottom:1px solid var(--line)}
+.drawer>header h3{font-size:22px}
+.xbtn{background:none;border:0;cursor:pointer;font-size:22px;line-height:1;color:var(--soft);padding:4px 6px}
+.drawer .items{flex:1;overflow-y:auto;padding:4px 26px}
+.citem{display:grid;grid-template-columns:82px 1fr;gap:16px;padding:20px 0;border-bottom:1px solid var(--line-2)}
+.citem .media{border:1px solid var(--line-2)}
+.citem .nm{font-family:var(--display);font-weight:600;font-size:16.5px;line-height:1.28}
+.citem .mt{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-top:6px;font-weight:500}
+.citem .row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:10px}
+.citem .qty button{width:30px;height:30px;font-size:14px}
+.citem .qty span{width:26px;font-size:12px}
+.drawer>footer{border-top:1px solid var(--line);padding:24px 26px;background:var(--paper)}
+.sumrow{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;color:var(--soft)}
+.sumrow.big{font-family:var(--display);font-weight:600;font-size:20px;color:var(--ink);padding-top:14px;margin-top:10px;border-top:1px solid var(--line)}
+
+/* ---------- checkout ---------- */
+.steps{display:flex;margin-bottom:48px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.steps div{flex:1;min-width:150px;border-top:2px solid transparent;margin-top:-1px;padding:16px 20px 0 0}
+.steps div[data-on=true]{border-color:var(--brass)}
+.steps .n{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);font-weight:600;display:block}
+.steps b{font-size:17px;font-weight:600;font-family:var(--display);display:block;margin-top:4px}
+.steps div[data-on=true] .n{color:var(--brass-d)}
+.steps p{font-size:12px;color:var(--faint);margin-top:2px}
+.cogrid{display:grid;grid-template-columns:1.3fr .7fr;gap:52px;align-items:start;padding-bottom:88px}
+.panel{border:1px solid var(--line);background:var(--paper);padding:34px}
+.panel h3{font-size:26px;margin-bottom:8px}
+.panel .sub{font-size:14px;color:var(--soft);margin-bottom:28px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.field input,.field select{border:0;border-bottom:1px solid var(--line);background:none;padding:9px 0;font-size:15px;width:100%}
+.field select{appearance:none;cursor:pointer}
+.field textarea{border:1px solid var(--line);padding:11px 13px;background:var(--cream);font-size:15px;width:100%}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--brass)}
+.field .err{font-size:11.5px;color:var(--rose)}
+.paybox{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center;background:var(--espresso);color:#D5C9B9;padding:30px;margin-bottom:26px}
+.qr{width:170px;height:170px;background:#fff;padding:10px;flex:none}
+.qr svg{width:100%;height:100%;display:block}
+.bankrow{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid #3B3229;font-size:14px;flex-wrap:wrap;align-items:baseline}
+.bankrow:last-of-type{border-bottom:0}
+.bankrow span{color:#8E8274;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:500}
+.bankrow b{font-weight:400;color:#F0E6D8;letter-spacing:.04em}
+.drop{display:block;border:1px dashed var(--brass);background:var(--brass-wash);padding:36px;text-align:center;cursor:pointer}
+.drop input{display:none}
+.drop b{font-family:var(--display);font-weight:600;font-size:19px;display:block;margin-bottom:7px}
+.drop p{font-size:13px;color:var(--soft)}
+.drop.has{border-style:solid;border-color:var(--ok);background:#F1F5F1}
+.osum{border:1px solid var(--line);background:var(--paper);padding:28px;position:sticky;top:170px}
+.osum h4{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;padding-bottom:16px;border-bottom:1px solid var(--line);margin:0 0 16px}
+.oline{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;padding:11px 0;font-size:13.5px}
+.oline .media{border:1px solid var(--line-2)}
+.oline .nm{line-height:1.3;min-width:0}
+.oline .nm small{display:block;color:var(--faint);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:3px}
+.note{display:flex;gap:12px;background:var(--sand);border-left:2px solid var(--brass);padding:16px 18px;font-size:13px;color:var(--soft);margin-top:22px}
+
+/* ---------- confirmation ---------- */
+.conf{max-width:660px;margin-inline:auto;text-align:center;padding-block:96px}
+.conf .seal{width:74px;height:74px;border:1px solid var(--brass);border-radius:50%;display:grid;place-items:center;margin:0 auto 30px}
+.conf .seal svg{width:30px;height:30px;stroke:var(--brass);fill:none;stroke-width:1.4}
+.conf h1{font-size:clamp(32px,4.6vw,46px)}
+.conf p{color:var(--soft);margin-top:16px;font-size:15.5px}
+.oid{display:inline-block;font-size:13px;letter-spacing:.26em;border:1px solid var(--brass);background:var(--brass-wash);padding:13px 26px;margin-top:28px;font-weight:600}
+
+/* ---------- footer ---------- */
+footer.site{background:var(--espresso);color:#B4A899}
+footer.site .wrap{padding-block:72px 32px}
+.fgrid2{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
+footer.site h5{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:#786C5E;margin:0 0 18px;font-weight:600}
+footer.site ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+footer.site button{background:none;border:0;padding:0;cursor:pointer;color:#B4A899;font-size:13.5px;text-align:left}
+footer.site button:hover{color:var(--brass-l)}
+footer.site .bnm{font-family:var(--wordmark);font-weight:600;font-size:20px;color:#F2E8DA;letter-spacing:.08em;text-transform:uppercase}
+footer.site .desc{font-size:13.5px;color:#8E8274;margin-top:14px;max-width:32ch}
+footer.site .copy{border-top:1px solid #322A24;margin-top:52px;padding-top:24px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#6E6357;font-weight:500}
+
+/* ---------- admin ---------- */
+.adminbody{background:#F5F2ED}
+header.admin{background:var(--espresso);color:#DCD0C0}
+header.admin .wrap{display:flex;align-items:center;gap:20px;min-height:62px;flex-wrap:wrap;padding-block:10px}
+header.admin .lg{display:flex;align-items:center;gap:12px}
+header.admin .seal{width:32px;height:32px;border:1px solid var(--brass);border-radius:50%;display:grid;place-items:center;font-family:var(--wordmark);font-weight:600;font-size:13px;color:var(--brass-l)}
+header.admin .ttl{font-family:var(--wordmark);font-weight:600;font-size:14px;letter-spacing:.07em;text-transform:uppercase;line-height:1.2;color:#F2E8DA}
+header.admin .ttl span{display:block;font-size:8px;letter-spacing:.26em;color:#7E7265;text-transform:uppercase;font-family:var(--body);font-weight:600;margin-top:4px}
+.atabs{display:flex;gap:2px;margin-left:20px;flex-wrap:wrap}
+.atabs button{background:none;border:0;padding:8px 14px;cursor:pointer;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:#9A8D7E}
+.atabs button:hover{color:#F2E8DA}
+.atabs button[data-on=true]{background:#332C25;color:var(--brass-l)}
+.who{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#9A8D7E;font-weight:500}
+.who .av{width:30px;height:30px;border-radius:50%;background:var(--brass);color:#fff;display:grid;place-items:center;font-size:10px}
+.login{max-width:410px;margin:88px auto;border:1px solid var(--line);background:var(--paper);padding:40px;box-shadow:var(--shadow)}
+.login .lbl{color:var(--brass-d);display:block;margin-bottom:14px}
+.login h2{font-size:27px;margin-bottom:8px}
+.login .sub{font-size:13.5px;color:var(--soft);margin-bottom:28px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:34px}
+.stat{background:var(--paper);padding:22px 24px}
+.stat .k{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.stat .v{font-family:var(--display);font-weight:600;font-size:32px;margin-top:10px;line-height:1}
+.stat .d{font-size:12px;color:var(--soft);margin-top:8px}
+.stat.alert .v{color:var(--amber)}
+.abox{border:1px solid var(--line);background:var(--paper);margin-bottom:30px}
+.abox>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.abox>header h3{font-size:21px}
+.abox>header p{font-size:10px;color:var(--faint);letter-spacing:.16em;text-transform:uppercase;font-weight:600;margin-top:5px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:13px 24px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--sand)}
+td{padding:15px 24px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#FBF8F3}
+td .thumb{width:46px;height:46px;border:1px solid var(--line-2);overflow:hidden;flex:none}
+td .thumb svg{width:100%;height:100%}
+.cellnm{display:flex;align-items:center;gap:14px;min-width:210px}
+.cellnm b{font-weight:600;font-family:var(--display);font-size:15.5px;display:block}
+.cellnm small{color:var(--faint);font-size:10px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-top:3px}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;padding:5px 10px;white-space:nowrap}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.p-wait{background:#FAF0E1;color:#A9701F}
+.p-ok{background:#EEF3EE;color:#4A6B51}
+.p-go{background:#EDF0F5;color:#42597A}
+.p-done{background:#F1EEF4;color:#5E4C7A}
+.p-live{background:#EEF3EE;color:#4A6B51}
+.p-off{background:#F1EEEB;color:#8A7F73}
+.p-low{background:#FAF0E1;color:#A9701F}
+.rowacts{display:flex;gap:8px;justify-content:flex-end}
+.tbtn{border:1px solid var(--line);background:var(--paper);padding:6px 12px;cursor:pointer;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--soft)}
+.tbtn:hover{border-color:var(--brass);color:var(--brass-d)}
+.tbtn.danger:hover{border-color:var(--rose);color:var(--rose)}
+select.status{border:1px solid var(--line);background:var(--paper);padding:7px 10px;font-size:12px;cursor:pointer}
+.modal{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:24px;overflow-y:auto}
+.modal>.overlay{z-index:0}
+.modal .sheet{background:var(--paper);border:1px solid var(--line);width:min(680px,100%);box-shadow:0 40px 90px -40px rgba(28,23,20,.6);max-height:90vh;display:flex;flex-direction:column;animation:pop .22s cubic-bezier(.2,.8,.3,1);position:relative;z-index:1}
+@keyframes pop{from{transform:translateY(14px);opacity:0}}
+.modal .sheet>header{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid var(--line)}
+.modal .sheet>header h3{font-size:22px}
+.modal .bd{padding:28px;overflow-y:auto}
+.modal .ft{display:flex;gap:12px;justify-content:flex-end;padding:20px 28px;border-top:1px solid var(--line);background:var(--sand);flex-wrap:wrap}
+.proof .shot{background:#fff;border:1px solid var(--line);padding:22px;max-width:300px;margin:0 auto}
+.proof .shot .hd{display:flex;justify-content:space-between;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:600;border-bottom:1px solid var(--line-2);padding-bottom:11px;margin-bottom:14px}
+.proof .shot .amt{font-family:var(--display);font-weight:600;font-size:29px;color:var(--ok)}
+.proof .shot .ln{display:flex;justify-content:space-between;font-size:12px;color:var(--soft);margin-top:9px;gap:12px}
+.proof .fn{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-top:16px;text-align:center;font-weight:500}
+
+/* ---------- guide + toast ---------- */
+.guidebtn{position:fixed;right:24px;bottom:24px;z-index:80;background:var(--espresso);color:var(--brass-l);border:0;padding:14px 22px;cursor:pointer;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;box-shadow:0 14px 36px -14px rgba(28,23,20,.7);display:flex;align-items:center;gap:10px}
+.guidebtn:hover{background:var(--brass);color:#fff}
+.guide{position:fixed;right:24px;bottom:24px;z-index:81;width:min(350px,calc(100vw - 48px));background:var(--paper);border:1px solid var(--line);box-shadow:0 30px 70px -30px rgba(28,23,20,.6);animation:pop .22s ease}
+.guide>header{display:flex;align-items:center;justify-content:space-between;padding:17px 20px;background:var(--espresso);color:#F2E8DA}
+.guide>header b{font-family:var(--display);font-size:17px;font-weight:600}
+.guide>header .xbtn{color:#9A8D7E}
+.guide ol{margin:0;padding:8px 20px 18px 36px;font-size:13.5px;color:var(--soft)}
+.guide li{padding:10px 0;border-bottom:1px solid var(--line-2)}
+.guide li:last-child{border-bottom:0}
+.guide li b{color:var(--ink);font-weight:600}
+.guide .ft{padding:14px 20px;background:var(--sand);font-size:11.5px;color:var(--faint);border-top:1px solid var(--line)}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:99;background:var(--espresso);color:#F2E8DA;padding:15px 26px;font-size:13.5px;box-shadow:0 18px 44px -18px rgba(28,23,20,.8);display:flex;align-items:center;gap:12px;animation:up .26s cubic-bezier(.2,.8,.3,1);max-width:calc(100vw - 36px)}
+@keyframes up{from{transform:translate(-50%,16px);opacity:0}}
+.toast svg{width:16px;height:16px;stroke:var(--brass-l);fill:none;stroke-width:1.6;flex:none}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .g4{grid-template-columns:repeat(3,1fr)}
+  .catwrap{grid-template-columns:190px 1fr;gap:34px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .fgrid2{grid-template-columns:1fr 1fr}
+  .split .txt{padding:40px 34px}
+}
+@media (max-width:880px){
+  .wrap{padding-inline:18px}
+  nav.main{display:none}
+  .burger{display:flex}
+  .hero .wrap{grid-template-columns:1fr;gap:44px;padding-block:56px}
+  .heroart{order:-1}
+  .heroart .plate{left:auto;right:16px;bottom:-18px}
+  .hero .assure{gap:26px;margin-top:38px}
+  .pdp{grid-template-columns:1fr;gap:40px}
+  .cogrid{grid-template-columns:1fr;gap:30px}
+  .osum{position:static}
+  .catwrap{grid-template-columns:1fr}
+  .filters{position:static;border:1px solid var(--line);background:var(--paper);padding:22px;margin-bottom:28px}
+  .cats{grid-template-columns:repeat(2,1fr)}
+  .pillars{grid-template-columns:1fr}
+  .pillars article+article{padding-left:0;border-left:0;border-top:1px solid var(--line)}
+  .split{grid-template-columns:1fr}
+  .split .art{min-height:300px}
+  .band{padding-block:58px}
+  .paybox{grid-template-columns:1fr;justify-items:center;text-align:center}
+}
+@media (max-width:620px){
+  .g4,.g3{grid-template-columns:repeat(2,1fr)}
+  .grid{gap:26px 14px}
+  .cats{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .specs{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .fgrid2{grid-template-columns:1fr}
+  .steps div{flex-basis:100%;min-width:0}
+  .panel{padding:22px}
+  .pcard .nm{font-size:17px}
+  .brand .nm{font-size:15px;letter-spacing:.05em}
+  .brand .seal{width:34px;height:34px;font-size:14px}
+  .brand{gap:10px}
+  .guidebtn,.guide{right:16px;bottom:16px}
+  .hero .assure b{font-size:20px}
+}
+</style>
+
+<div id="app"></div>
+<div id="layer"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   Catalogue
+   ============================================================ */
+var CATS = [
+  { id:'c1', name:'Bridal Sets',       slug:'bridal',    motif:'set',      blurb:'Complete wedding sets, necklace to maang tikka.' },
+  { id:'c2', name:'Necklaces',         slug:'necklaces', motif:'necklace', blurb:'Rani haars, chokers and temple work.' },
+  { id:'c3', name:'Bangles & Kadas',   slug:'bangles',   motif:'bangle',   blurb:'Handcrafted in pairs and sets of six.' },
+  { id:'c4', name:'Earrings',          slug:'earrings',  motif:'earring',  blurb:'Jhumkas, chandbalis and everyday studs.' },
+  { id:'c5', name:'Rings',             slug:'rings',     motif:'ring',     blurb:'Solitaires, navratna and engraved bands.' },
+  { id:'c6', name:'Pendants & Chains', slug:'pendants',  motif:'pendant',  blurb:'Coin pendants, drops and rope chains.' }
+];
+
+var PRODUCTS = [
+  { id:'p1',  name:'Sanghamitra Bridal Set', cat:'c1', price:894800, purity:'22KT', metal:'Yellow Gold', weight:'84.2 g',
+    stones:'Uncut polki 6.4 ct, ruby beads', tone:'t1', motif:'set', stock:2, featured:true, tag:'Bridal',
+    desc:'A full bridal set in the Jaipur polki tradition: a seven-layer haar, matching chandbalis and a maang tikka. Uncut polki set in gold foil, finished with strung ruby beads along the rim.' },
+  { id:'p2',  name:'Rajwada Polki Necklace', cat:'c1', price:562400, purity:'22KT', metal:'Yellow Gold', weight:'52.8 g',
+    stones:'Uncut polki 4.1 ct', tone:'t2', motif:'necklace', stock:3, featured:true,
+    desc:'A court-style choker worn close at the throat, with a detachable centre motif that doubles as a brooch. Hand-set over three weeks by a single karigar.' },
+  { id:'p3',  name:'Meenakari Temple Set', cat:'c1', price:531900, purity:'22KT', metal:'Yellow Gold', weight:'61.5 g',
+    stones:'Kemp stones, green enamel', tone:'t3', motif:'set', stock:1,
+    desc:'South Indian temple work with enamel on the reverse, so the piece is finished on both faces. The goddess motif repeats across nine panels.' },
+  { id:'p4',  name:'Kundan Rani Haar', cat:'c2', price:426500, purity:'22KT', metal:'Yellow Gold', weight:'44.0 g',
+    stones:'Kundan 3.2 ct, pearl drops', tone:'t1', motif:'necklace', stock:4, featured:true,
+    desc:'A long haar that falls below the neckline, strung on silk thread so it moves with the wearer. Pearl drops run along the lower edge.' },
+  { id:'p5',  name:'Antique Lakshmi Necklace', cat:'c2', price:318700, purity:'22KT', metal:'Yellow Gold', weight:'38.6 g',
+    stones:'None', tone:'t3', motif:'necklace', stock:5,
+    desc:'An antique matte finish, deliberately unpolished so the relief work holds shadow. A Lakshmi coin sits at the centre inside a granulated border.' },
+  { id:'p6',  name:'Chandrahaar Layered Chain', cat:'c2', price:224900, purity:'22KT', metal:'Yellow Gold', weight:'28.4 g',
+    stones:'None', tone:'t2', motif:'necklace', stock:6,
+    desc:'Three crescents in graduating lengths, each worked in a different link. Light enough to wear through a full evening.' },
+  { id:'p7',  name:'Jaipuri Kada Pair', cat:'c3', price:378200, purity:'22KT', metal:'Yellow Gold', weight:'46.2 g',
+    stones:'None', tone:'t1', motif:'bangle', stock:4, featured:true,
+    desc:'A broad pair of kadas with a screw clasp, chased by hand in a repeating floral band. Sold as a pair.' },
+  { id:'p8',  name:'Filigree Bangles, Set of Six', cat:'c3', price:289400, purity:'22KT', metal:'Yellow Gold', weight:'33.8 g',
+    stones:'None', tone:'t3', motif:'bangle', stock:7,
+    desc:'Six thin bangles in drawn-wire filigree, made to be worn stacked. The openwork keeps the weight down without losing the width.' },
+  { id:'p9',  name:'Diamond-Cut Bangles', cat:'c3', price:156300, purity:'18KT', metal:'Rose Gold', weight:'21.4 g',
+    stones:'None', tone:'t2', motif:'bangle', stock:9,
+    desc:'Machine diamond-cut facets that catch light from every angle. Rose gold, made for everyday wear with western clothes.' },
+  { id:'p10', name:'Classic Gold Jhumka', cat:'c4', price:107100, purity:'22KT', metal:'Yellow Gold', weight:'12.6 g',
+    stones:'None', tone:'t1', motif:'earring', stock:12, featured:true,
+    desc:'The everyday jhumka: a domed bell with a fringe of gold beads, sized so it clears the shoulder. Push-back fitting with a safety screw.' },
+  { id:'p11', name:'Polki Chandbali', cat:'c4', price:228600, purity:'22KT', metal:'Yellow Gold', weight:'18.9 g',
+    stones:'Uncut polki 2.1 ct', tone:'t2', motif:'earring', stock:5,
+    desc:'A crescent chandbali with a polki centre and a pearl drop, supported by a chain over the ear so the weight sits on the head rather than the lobe.' },
+  { id:'p12', name:'Everyday Polki Studs', cat:'c4', price:58900, purity:'18KT', metal:'Yellow Gold', weight:'4.2 g',
+    stones:'Uncut polki 0.8 ct', tone:'t3', motif:'earring', stock:14,
+    desc:'Small enough for the office, bright enough for the evening. A flat-back post keeps them sitting flush against the lobe.' },
+  { id:'p13', name:'Solitaire Halo Ring', cat:'c5', price:171900, purity:'18KT', metal:'White Gold', weight:'3.6 g',
+    stones:'Solitaire 0.52 ct VVS1, halo 0.18 ct', tone:'t3', motif:'ring', stock:3, featured:true,
+    desc:'A round brilliant in a four-prong setting with a pavé halo. Certified by IGI, and the certificate travels with the ring.' },
+  { id:'p14', name:'Navratna Statement Ring', cat:'c5', price:132400, purity:'22KT', metal:'Yellow Gold', weight:'8.4 g',
+    stones:'Nine stones, astrologically placed', tone:'t1', motif:'ring', stock:4,
+    desc:'Nine gemstones in their prescribed positions with a ruby at the centre, set open-backed so each stone touches the skin.' },
+  { id:'p15', name:'Engraved Wedding Band', cat:'c5', price:49700, purity:'22KT', metal:'Yellow Gold', weight:'5.8 g',
+    stones:'None', tone:'t2', motif:'ring', stock:10,
+    desc:'A comfort-fit band with a hand-engraved vine running the full circumference. Inside engraving is complimentary.' },
+  { id:'p16', name:'Lakshmi Coin Pendant', cat:'c6', price:77400, purity:'22KT', metal:'Yellow Gold', weight:'9.2 g',
+    stones:'None', tone:'t1', motif:'pendant', stock:8,
+    desc:'A cast Lakshmi coin in a beaded bezel on an eighteen-inch rope chain. A first-jewellery gift, and a common choice for Dhanteras.' },
+  { id:'p17', name:'Diamond Drop Pendant', cat:'c6', price:96200, purity:'18KT', metal:'White Gold', weight:'2.9 g',
+    stones:'Brilliant cut 0.31 ct', tone:'t3', motif:'pendant', stock:6,
+    desc:'A single drop on a fine cable chain, set high so it reads clearly against the skin. Adjustable at sixteen and eighteen inches.' },
+  { id:'p18', name:'Rope Chain, Twenty Inch', cat:'c6', price:121400, purity:'22KT', metal:'Yellow Gold', weight:'14.8 g',
+    stones:'None', tone:'t2', motif:'pendant', stock:11,
+    desc:'A solid rope chain that holds its shape under a heavier pendant. Lobster clasp with a figure-eight safety.' }
+];
+
+/* ---------- store ---------- */
+var DB = {
+  cats: CATS.slice(),
+  products: PRODUCTS.slice(),
+  orders: [
+    { id:'BJS-24817', name:'Meera Raghavan', phone:'98200 41277', city:'Mumbai',
+      items:[{pid:'p10', qty:1},{pid:'p16', qty:1}], status:'packed', proof:'gpay-receipt-1142.jpg',
+      placed:'27 Sep 2026, 7:42 pm', method:'UPI' },
+    { id:'BJS-24818', name:'Anjali Deshmukh', phone:'99304 88210', city:'Pune',
+      items:[{pid:'p7', qty:1}], status:'confirmed', proof:'paytm-txn-90x.png',
+      placed:'28 Sep 2026, 11:06 am', method:'UPI' },
+    { id:'BJS-24819', name:'Rohit Khanna', phone:'98110 63009', city:'Delhi',
+      items:[{pid:'p13', qty:1}], status:'pending', proof:'IMG_4471.jpg',
+      placed:'29 Sep 2026, 9:18 pm', method:'Bank transfer' },
+    { id:'BJS-24820', name:'Sneha Iyer', phone:'97400 55182', city:'Bengaluru',
+      items:[{pid:'p4', qty:1},{pid:'p12', qty:2}], status:'pending', proof:'upi-screenshot.jpg',
+      placed:'30 Sep 2026, 8:04 am', method:'UPI' }
+  ]
+};
+
+var STATUSES = [
+  { k:'pending',   label:'Payment under review', pill:'p-wait' },
+  { k:'confirmed', label:'Payment confirmed',    pill:'p-ok'   },
+  { k:'packed',    label:'Packed & insured',     pill:'p-go'   },
+  { k:'shipped',   label:'Out for delivery',     pill:'p-go'   },
+  { k:'delivered', label:'Delivered',            pill:'p-done' }
+];
+function statusMeta(k){ for (var i=0;i<STATUSES.length;i++) if (STATUSES[i].k===k) return STATUSES[i]; return STATUSES[0]; }
+
+var S = {
+  mode:'store', route:'home', pid:null, catFilter:[], metalFilter:[], purityFilter:[],
+  maxPrice:900000, sort:'featured', q:'', cart:[], drawer:false, coStep:1,
+  order:null, guide:false, guideSeen:false, adminTab:'dash', authed:false,
+  modal:null, thumb:0, mobileNav:false, form:{}, formErr:{}, proofName:'', focusId:null
+};
+
+/* ---------- helpers ---------- */
+function el(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function byId(list, id){ for (var i=0;i<list.length;i++) if (list[i].id===id) return list[i]; return null; }
+function prod(id){ return byId(DB.products, id); }
+function catName(id){ var c = byId(DB.cats, id); return c ? c.name : 'Uncategorised'; }
+function inr(n){
+  n = Math.round(n);
+  var s = String(Math.abs(n)), out;
+  if (s.length > 3){ var l = s.slice(-3), r = s.slice(0,-3); out = r.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + l; }
+  else out = s;
+  return (n<0?'-':'') + '₹' + out;
+}
+function cartCount(){ var n=0; for (var i=0;i<S.cart.length;i++) n += S.cart[i].qty; return n; }
+function cartTotal(){ var t=0; for (var i=0;i<S.cart.length;i++){ var p=prod(S.cart[i].pid); if (p) t += p.price*S.cart[i].qty; } return t; }
+function orderTotal(o){ var t=0; for (var i=0;i<o.items.length;i++){ var p=prod(o.items[i].pid); if (p) t += p.price*o.items[i].qty; } return t; }
+function stockValue(){ var t=0; for (var i=0;i<DB.products.length;i++) t += DB.products[i].price*DB.products[i].stock; return t; }
+
+/* ============================================================
+   Artwork — metallic line studies standing in for photography
+   ============================================================ */
+var GID = 0;
+var TONES = {
+  t1:['#FCF6EA','#EADCC2','#DCC9A6'],
+  t2:['#FBF2EE','#EDD9D1','#E0C6BC'],
+  t3:['#F7F6F1','#E4E1D8','#D6D2C6'],
+  dark:['#2C2520','#1E1815','#151110']
+};
+
+function bez(p0,p1,p2,t){
+  var u = 1-t;
+  return [u*u*p0[0] + 2*u*t*p1[0] + t*t*p2[0], u*u*p0[1] + 2*u*t*p1[1] + t*t*p2[1]];
+}
+
+function art(kind, tone, variant){
+  var g = 'g' + (++GID), tn = TONES[tone] || TONES.t1;
+  var dark = tone === 'dark';
+  var metal = 'url(#m' + g + ')';
+  var gem   = 'url(#s' + g + ')';
+  var hair  = dark ? '#7A6440' : '#A88A52';
+
+  var defs =
+    '<defs>' +
+      '<radialGradient id="b' + g + '" cx="34%" cy="22%" r="86%">' +
+        '<stop offset="0%" stop-color="' + tn[0] + '"/><stop offset="58%" stop-color="' + tn[1] + '"/><stop offset="100%" stop-color="' + tn[2] + '"/>' +
+      '</radialGradient>' +
+      '<linearGradient id="m' + g + '" x1="14%" y1="0%" x2="86%" y2="100%">' +
+        '<stop offset="0%" stop-color="#F2DCAC"/><stop offset="26%" stop-color="#C9A45F"/>' +
+        '<stop offset="58%" stop-color="#8E6E37"/><stop offset="80%" stop-color="#D9BE88"/>' +
+        '<stop offset="100%" stop-color="#A98545"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="s' + g + '" x1="20%" y1="0%" x2="80%" y2="100%">' +
+        '<stop offset="0%" stop-color="#FFFFFF" stop-opacity=".95"/>' +
+        '<stop offset="45%" stop-color="#EFE3CE"/><stop offset="100%" stop-color="#C2A978"/>' +
+      '</linearGradient>' +
+    '</defs>';
+
+  var bg = '<rect width="400" height="400" fill="url(#b' + g + ')"/>' +
+           '<circle cx="200" cy="196" r="150" fill="none" stroke="' + hair + '" stroke-opacity=".16" stroke-width="1"/>' +
+           '<circle cx="200" cy="196" r="128" fill="none" stroke="' + hair + '" stroke-opacity=".10" stroke-width="1"/>';
+
+  var body = '';
+
+  if (kind === 'necklace' || kind === 'set'){
+    var P0=[74,118], P1=[200,306], P2=[326,118];
+    var chain = '';
+    for (var i=1;i<=17;i++){
+      var t = i/18, pt = bez(P0,P1,P2,t);
+      var r = 3.1 + 4.2*Math.sin(Math.PI*t);
+      chain += '<circle cx="' + pt[0].toFixed(1) + '" cy="' + pt[1].toFixed(1) + '" r="' + r.toFixed(1) + '" fill="' + metal + '"/>';
+    }
+    var cp = bez(P0,P1,P2,0.5);
+    body =
+      '<path d="M74 118 Q200 306 326 118" fill="none" stroke="' + metal + '" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M88 126 Q200 286 312 126" fill="none" stroke="' + metal + '" stroke-width="1.6" stroke-opacity=".62"/>' +
+      chain +
+      '<g transform="translate(' + cp[0].toFixed(1) + ',' + (cp[1]+6).toFixed(1) + ')">' +
+        '<path d="M0 -4 C 26 10 26 46 0 62 C -26 46 -26 10 0 -4 Z" fill="' + metal + '"/>' +
+        '<path d="M0 4 C 16 14 16 40 0 52 C -16 40 -16 14 0 4 Z" fill="' + gem + '"/>' +
+        '<path d="M0 4 L0 52 M-15 28 L15 28" stroke="' + hair + '" stroke-opacity=".35" stroke-width="1"/>' +
+        '<circle cx="0" cy="-10" r="5" fill="' + metal + '"/>' +
+      '</g>';
+    if (kind === 'set'){
+      body = '<g transform="translate(0,-46) scale(.9)" transform-origin="200 200">' + body + '</g>' +
+        '<g transform="translate(-96,168) scale(.34)" transform-origin="200 200">' + jhumka(metal, gem, hair) + '</g>' +
+        '<g transform="translate(96,168) scale(.34)" transform-origin="200 200">' + jhumka(metal, gem, hair) + '</g>' +
+        '<g transform="translate(0,190) scale(.3)" transform-origin="200 200">' +
+          '<path d="M200 150 L232 200 L200 250 L168 200 Z" fill="' + metal + '"/>' +
+          '<circle cx="200" cy="200" r="15" fill="' + gem + '"/>' +
+        '</g>';
+    }
+  } else if (kind === 'bangle'){
+    var dots = '';
+    for (var k=0;k<12;k++){
+      var a = (k/12)*Math.PI*2 - Math.PI/2;
+      dots += '<circle cx="' + (200+112*Math.cos(a)).toFixed(1) + '" cy="' + (200+112*Math.sin(a)).toFixed(1) + '" r="' + (k%3===0?6.5:4) + '" fill="' + metal + '"/>';
+    }
+    body =
+      '<circle cx="200" cy="200" r="112" fill="none" stroke="' + metal + '" stroke-width="17"/>' +
+      '<circle cx="200" cy="200" r="120" fill="none" stroke="' + hair + '" stroke-opacity=".3" stroke-width="1"/>' +
+      '<circle cx="200" cy="200" r="104" fill="none" stroke="' + hair + '" stroke-opacity=".3" stroke-width="1"/>' +
+      '<path d="M200 88 A112 112 0 0 1 312 200" fill="none" stroke="#FFF3DA" stroke-opacity=".5" stroke-width="4" stroke-linecap="round"/>' +
+      dots +
+      '<circle cx="200" cy="200" r="76" fill="none" stroke="' + metal + '" stroke-width="5" stroke-opacity=".8"/>' +
+      '<circle cx="200" cy="200" r="64" fill="none" stroke="' + metal + '" stroke-width="2.4" stroke-opacity=".55"/>';
+  } else if (kind === 'earring'){
+    body =
+      '<g transform="translate(-56,-14) scale(.84)" transform-origin="200 200">' + jhumka(metal, gem, hair) + '</g>' +
+      '<g transform="translate(56,34) scale(.84)" transform-origin="200 200">' + jhumka(metal, gem, hair) + '</g>';
+  } else if (kind === 'ring'){
+    var pav = '';
+    for (var j=0;j<14;j++){
+      var aa = Math.PI + (j/13)*Math.PI;
+      pav += '<circle cx="' + (200+62*Math.cos(aa)).toFixed(1) + '" cy="' + (252+54*Math.sin(aa)).toFixed(1) + '" r="3.4" fill="' + gem + '"/>';
+    }
+    body =
+      '<ellipse cx="200" cy="252" rx="82" ry="72" fill="none" stroke="' + metal + '" stroke-width="15"/>' +
+      '<ellipse cx="200" cy="252" rx="90" ry="80" fill="none" stroke="' + hair + '" stroke-opacity=".28" stroke-width="1"/>' +
+      pav +
+      '<path d="M158 176 L200 108 L242 176 L200 212 Z" fill="' + metal + '"/>' +
+      '<path d="M170 172 L200 124 L230 172 L200 198 Z" fill="' + gem + '"/>' +
+      '<path d="M170 172 L230 172 M200 124 L200 198 M170 172 L200 150 L230 172" stroke="' + hair + '" stroke-opacity=".4" stroke-width="1" fill="none"/>' +
+      '<circle cx="150" cy="196" r="6" fill="' + metal + '"/><circle cx="250" cy="196" r="6" fill="' + metal + '"/>';
+  } else { /* pendant */
+    var C0=[92,86], C1=[200,140], C2=[308,86];
+    var ch = '';
+    for (var m=1;m<=13;m++){
+      var tt = m/14, q = bez(C0,C1,C2,tt);
+      ch += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="3.2" fill="' + metal + '"/>';
+    }
+    body = ch +
+      '<path d="M92 86 Q200 140 308 86" fill="none" stroke="' + metal + '" stroke-width="1.8" stroke-opacity=".7"/>' +
+      '<circle cx="200" cy="152" r="14" fill="none" stroke="' + metal + '" stroke-width="5"/>' +
+      '<path d="M200 176 C 250 210 254 268 200 302 C 146 268 150 210 200 176 Z" fill="' + metal + '"/>' +
+      '<path d="M200 192 C 236 218 238 260 200 286 C 162 260 164 218 200 192 Z" fill="' + gem + '"/>' +
+      '<path d="M200 192 L200 286 M166 240 L234 240 M176 214 L224 266 M224 214 L176 266" stroke="' + hair + '" stroke-opacity=".32" stroke-width="1" fill="none"/>';
+  }
+
+  var vt = variant === 1 ? '<g transform="rotate(-12 200 200) scale(1.1)" transform-origin="200 200">'
+         : variant === 2 ? '<g transform="scale(.82)" transform-origin="200 200">'
+         : '<g>';
+  var frame = variant === 2 ? '<rect x="42" y="42" width="316" height="316" fill="none" stroke="' + hair + '" stroke-opacity=".28" stroke-width="1"/>' : '';
+
+  return '<svg viewBox="0 0 400 400" role="img" aria-hidden="true">' + defs + bg + frame + vt + body + '</g></svg>';
+}
+
+function jhumka(metal, gem, hair){
+  var fr = '';
+  for (var i=0;i<9;i++){
+    var x = 128 + i*(144/8), y = 230 + 13*Math.sin(Math.PI*i/8);
+    fr += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="7" fill="' + metal + '"/>';
+  }
+  return '<path d="M200 84 C 176 96 172 116 178 132" fill="none" stroke="' + metal + '" stroke-width="3"/>' +
+    '<circle cx="200" cy="148" r="20" fill="' + metal + '"/>' +
+    '<circle cx="200" cy="148" r="11" fill="' + gem + '"/>' +
+    '<path d="M126 228 C 132 168 268 168 274 228 Z" fill="' + metal + '"/>' +
+    '<path d="M148 222 C 154 186 246 186 252 222 Z" fill="' + gem + '" fill-opacity=".55"/>' +
+    '<path d="M200 174 L200 228 M166 200 L234 200" stroke="' + hair + '" stroke-opacity=".3" stroke-width="1"/>' +
+    fr;
+}
+
+function qrSVG(){
+  var seed = 11, out = '', N = 25;
+  function rnd(){ seed = (seed*9301 + 49297) % 233280; return seed/233280; }
+  for (var y=0;y<N;y++) for (var x=0;x<N;x++){
+    if ((x<7&&y<7)||(x>N-8&&y<7)||(x<7&&y>N-8)) continue;
+    if (rnd() > 0.52) out += '<rect x="'+(x*4)+'" y="'+(y*4)+'" width="4" height="4"/>';
+  }
+  function eye(x,y){ return '<rect x="'+x+'" y="'+y+'" width="28" height="28"/>' +
+    '<rect x="'+(x+4)+'" y="'+(y+4)+'" width="20" height="20" fill="#fff"/>' +
+    '<rect x="'+(x+8)+'" y="'+(y+8)+'" width="12" height="12"/>'; }
+  return '<svg viewBox="0 0 100 100" aria-label="Payment QR code"><g fill="#1C1714">' + out + eye(0,0) + eye(72,0) + eye(0,72) + '</g></svg>';
+}
+
+var toastTimer = null;
+function toast(msg){
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>' + esc(msg) + '</span>';
+  document.body.appendChild(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.remove(); }, 2600);
+}
+function go(route, opts){
+  opts = opts || {};
+  S.route = route;
+  if (opts.pid !== undefined) S.pid = opts.pid;
+  if (route !== 'product') S.thumb = 0;
+  S.drawer = false; S.mobileNav = false;
+  render();
+  window.scrollTo({ top:0 });
+}
+
+/* ============================================================
+   STOREFRONT
+   ============================================================ */
+function icon(n){
+  var p = {
+    search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>',
+    bag:'<path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/>',
+    truck:'<path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>',
+    shield:'<path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6l-7-3z"/><path d="m9 12 2 2 4-4"/>',
+    gem:'<path d="M6 4h12l3 5-9 11L3 9l3-5z"/><path d="M3 9h18M9 4 6 9l6 11 6-11-3-5"/>',
+    check:'<path d="M20 6 9 17l-5-5"/>',
+    menu:'<path d="M4 7h16M4 12h16M4 17h16"/>'
+  }[n];
+  return '<svg viewBox="0 0 24 24">' + p + '</svg>';
+}
+
+function protoBar(){
+  return '<div class="protobar"><div class="wrap">' +
+    '<span class="lbl">Interactive prototype &nbsp;&middot;&nbsp; <b>NuForge Labs</b></span>' +
+    '<span class="sp"></span>' +
+    '<div class="modeswitch">' +
+      '<button data-mode="store" aria-pressed="' + (S.mode==='store') + '">Storefront</button>' +
+      '<button data-mode="admin" aria-pressed="' + (S.mode==='admin') + '">Admin portal</button>' +
+    '</div></div></div>';
+}
+
+function header(){
+  var navs = [['home','Home'],['shop','Collection'],['bridal','Bridal'],['story','Our story']];
+  var links = navs.map(function(n){
+    var on = (S.route === n[0]) || (n[0]==='shop' && S.route==='product');
+    return '<button data-nav="' + n[0] + '" data-on="' + on + '">' + n[1] + '</button>';
+  }).join('');
+  var mob = S.mobileNav ? '<div style="border-top:1px solid var(--line);background:var(--cream)"><div class="wrap" style="display:flex;flex-direction:column;padding-block:6px">' +
+    navs.map(function(n){ return '<button data-nav="' + n[0] + '" style="background:none;border:0;text-align:left;padding:13px 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--line-2);cursor:pointer">' + n[1] + '</button>'; }).join('') +
+    '</div></div>' : '';
+  return '<header class="store"><div class="wrap">' +
+    '<button class="brand" data-nav="home"><span class="seal">B</span><span><span class="nm">Jewellery Palace</span><span class="sub">BJS &middot; Est. 1974</span></span></button>' +
+    '<span class="sp"></span>' +
+    '<nav class="main">' + links + '</nav>' +
+    '<div class="hact">' +
+      '<button class="iconbtn burger" data-act="mobnav" aria-label="Menu">' + icon('menu') + '</button>' +
+      '<button class="iconbtn" data-act="focus-search" aria-label="Search">' + icon('search') + '</button>' +
+      '<button class="iconbtn" data-act="cart" aria-label="Cart">' + icon('bag') +
+        (cartCount() ? '<span class="cartcount">' + cartCount() + '</span>' : '') + '</button>' +
+    '</div></div>' + mob + '</header>';
+}
+
+function pcard(p){
+  var tag = p.stock === 0 ? '<span class="tag rose">Sold out</span>'
+          : p.stock <= 2 ? '<span class="tag">Last ' + p.stock + '</span>'
+          : (p.tag ? '<span class="tag">' + esc(p.tag) + '</span>' : '');
+  return '<button class="pcard" data-p="' + p.id + '">' +
+    '<span class="media">' + art(p.motif, p.tone, 0) + tag + '</span>' +
+    '<span class="nm">' + esc(p.name) + '</span>' +
+    '<span class="meta">' + esc(p.purity) + ' &middot; ' + esc(p.metal) + ' &middot; ' + esc(p.weight) + '</span>' +
+    '<span class="pr tnum">' + inr(p.price) + '</span></button>';
+}
+
+function viewHome(){
+  var feat = DB.products.filter(function(p){ return p.featured; }).slice(0,4);
+  if (feat.length < 4) feat = DB.products.slice(0,4);
+  var cats = DB.cats.slice(0,3);
+  var newest = DB.products.slice(-4).reverse();
+
+  return '<section class="hero"><div class="wrap">' +
+    '<div>' +
+      '<span class="lbl">Goldsmiths in Gurugram since 1974</span>' +
+      '<h1>Buy jewellery the way you would <em>in person</em>.</h1>' +
+      '<p class="lede">Fifty-two years of goldsmithing, now online. Hallmarked pieces, weights on the invoice, and a person at the other end of every order.</p>' +
+      '<div class="cta"><button class="btn brass" data-nav="shop">Browse the collection</button>' +
+        '<button class="btn onDark" data-nav="bridal">Bridal sets</button></div>' +
+      '<div class="assure">' +
+        '<div><b>916</b><span>BIS hallmarked</span></div>' +
+        '<div><b>52</b><span>Years at one address</span></div>' +
+        '<div><b>Insured</b><span>Doorstep delivery</span></div>' +
+        '<div><b>Lifetime</b><span>Free polish &amp; fit</span></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="heroart"><div class="media">' + art('necklace','dark',0) + '</div>' +
+      '<div class="plate"><b>Rajwada</b><span>Polki necklace</span></div></div>' +
+  '</div></section>' +
+
+  '<section class="band"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">Shop by category</span><h2>Where would you like to start?</h2></div>' +
+      '<button class="link" data-nav="shop">All ' + DB.products.length + ' pieces</button></div>' +
+    '<div class="cats">' + cats.map(function(c){
+      var n = DB.products.filter(function(p){ return p.cat === c.id; }).length;
+      return '<button class="ccard" data-cat="' + c.id + '"><span class="media">' + art(c.motif, 't1', 0) + '</span>' +
+        '<span class="cap"><b>' + esc(c.name) + '</b><span>' + n + ' pieces</span></span>' +
+        '<p>' + esc(c.blurb) + '</p></button>';
+    }).join('') + '</div>' +
+  '</div></section>' +
+
+  '<section class="band sand"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">Most asked for</span><h2>This season at the counter</h2>' +
+      '<p>The pieces customers come back for, and the ones we are asked to make again and again.</p></div></div>' +
+    '<div class="grid g4">' + feat.map(pcard).join('') + '</div>' +
+  '</div></section>' +
+
+  '<section class="band dark"><div class="wrap"><div class="split">' +
+    '<div class="art"><span class="media">' + art('necklace','dark',1) + '</span></div>' +
+    '<div class="txt"><span class="lbl">The bridal room</span>' +
+      '<h3>Book the showroom for an afternoon.</h3>' +
+      '<p>We close the upstairs room, lay the full trousseau out against the outfit, and hold whatever you choose until the wedding date. Most families come back three or four times before deciding.</p>' +
+      '<button class="btn onDark" data-nav="bridal">See bridal sets</button></div>' +
+  '</div></div></section>' +
+
+  '<section class="band"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">How we work</span><h2>Nothing hidden in the price</h2></div></div>' +
+    '<div class="pillars">' +
+      '<article><span class="num">I</span><h3>Weighed and hallmarked</h3><p>Gross and net weight printed on the invoice, the BIS 916 hallmark and a unique HUID stamped on every piece. You can check it on the BIS app before you pay.</p></article>' +
+      '<article><span class="num">II</span><h3>One price, explained</h3><p>Making charges are quoted before the piece is made, not discovered at the till. What is on the tag is what you pay.</p></article>' +
+      '<article><span class="num">III</span><h3>Pay directly</h3><p>Pay by UPI or bank transfer to the shop account. No gateway sits in between, so nothing is deducted from what you send.</p></article>' +
+    '</div>' +
+  '</div></section>' +
+
+  '<section class="band sand"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">Recently added</span><h2>New in the showcase</h2></div>' +
+      '<button class="link" data-nav="shop">View collection</button></div>' +
+    '<div class="grid g4">' + newest.map(pcard).join('') + '</div>' +
+  '</div></section>';
+}
+
+function filtered(){
+  var list = DB.products.filter(function(p){
+    if (S.catFilter.length && S.catFilter.indexOf(p.cat) < 0) return false;
+    if (S.metalFilter.length && S.metalFilter.indexOf(p.metal) < 0) return false;
+    if (S.purityFilter.length && S.purityFilter.indexOf(p.purity) < 0) return false;
+    if (p.price > S.maxPrice) return false;
+    if (S.q){
+      var hay = (p.name + ' ' + catName(p.cat) + ' ' + p.metal + ' ' + p.stones).toLowerCase();
+      if (hay.indexOf(S.q.toLowerCase()) < 0) return false;
+    }
+    return true;
+  });
+  if (S.sort === 'low') list.sort(function(a,b){ return a.price-b.price; });
+  else if (S.sort === 'high') list.sort(function(a,b){ return b.price-a.price; });
+  else if (S.sort === 'name') list.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  else list.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0); });
+  return list;
+}
+
+function viewShop(){
+  var list = filtered();
+  var metals = ['Yellow Gold','Rose Gold','White Gold'];
+  var chips = [];
+  S.catFilter.forEach(function(c){ chips.push('<button class="chip" data-rm="cat:'+c+'">'+esc(catName(c))+' &times;</button>'); });
+  S.metalFilter.forEach(function(m){ chips.push('<button class="chip" data-rm="metal:'+m+'">'+esc(m)+' &times;</button>'); });
+  S.purityFilter.forEach(function(k){ chips.push('<button class="chip" data-rm="purity:'+k+'">'+k+' &times;</button>'); });
+  if (S.q) chips.push('<button class="chip" data-rm="q:">&ldquo;'+esc(S.q)+'&rdquo; &times;</button>');
+  if (S.maxPrice < 900000) chips.push('<button class="chip" data-rm="price:">Under '+inr(S.maxPrice)+' &times;</button>');
+
+  return '<div class="wrap"><div class="crumb"><button data-nav="home">Home</button><span>&mdash;</span><span>Collection</span></div></div>' +
+  '<section class="band tight" style="padding-top:0"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">The collection</span><h2>Every piece in the showcase</h2></div></div>' +
+    '<div class="catwrap">' +
+      '<aside class="filters">' +
+        '<div class="fgroup"><h4>Search</h4><input id="q" type="search" placeholder="Jhumka, polki, kada" value="' + esc(S.q) + '"></div>' +
+        '<div class="fgroup"><h4>Category</h4>' + DB.cats.map(function(c){
+          var n = DB.products.filter(function(p){ return p.cat === c.id; }).length;
+          return '<label><input type="checkbox" data-f="cat" value="' + c.id + '"' + (S.catFilter.indexOf(c.id)>=0?' checked':'') + '>' + esc(c.name) + '<span class="ct">' + n + '</span></label>';
+        }).join('') + '</div>' +
+        '<div class="fgroup"><h4>Metal</h4>' + metals.map(function(m){
+          var n = DB.products.filter(function(p){ return p.metal === m; }).length;
+          return '<label><input type="checkbox" data-f="metal" value="' + m + '"' + (S.metalFilter.indexOf(m)>=0?' checked':'') + '>' + m + '<span class="ct">' + n + '</span></label>';
+        }).join('') + '</div>' +
+        '<div class="fgroup"><h4>Purity</h4>' + ['22KT','18KT'].map(function(k){
+          var n = DB.products.filter(function(p){ return p.purity === k; }).length;
+          return '<label><input type="checkbox" data-f="purity" value="' + k + '"' + (S.purityFilter.indexOf(k)>=0?' checked':'') + '>' + k + '<span class="ct">' + n + '</span></label>';
+        }).join('') + '</div>' +
+        '<div class="fgroup"><h4>Budget</h4><input id="price" type="range" min="50000" max="900000" step="10000" value="' + S.maxPrice + '">' +
+          '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint)" class="tnum"><span>' + inr(50000) + '</span><span>' + (S.maxPrice>=900000 ? 'No limit' : 'Up to ' + inr(S.maxPrice)) + '</span></div></div>' +
+      '</aside>' +
+      '<div>' +
+        '<div class="catbar"><span class="ct">' + list.length + ' of ' + DB.products.length + ' pieces</span>' +
+          '<select class="sort" id="sort">' + ['featured|Most asked for','low|Price, low to high','high|Price, high to low','name|Alphabetical'].map(function(o){
+            var v = o.split('|'); return '<option value="'+v[0]+'"'+(S.sort===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') + '</select></div>' +
+        (chips.length ? '<div class="chips">' + chips.join('') + '<button class="chip" data-rm="all:" style="border-color:var(--brass);color:var(--brass-d)">Clear all</button></div>' : '') +
+        (list.length ? '<div class="grid g3">' + list.map(pcard).join('') + '</div>'
+          : '<div class="empty"><h3>Nothing matches those filters</h3><p>Try widening the budget or clearing a category.</p><button class="btn ghost sm" data-rm="all:">Clear filters</button></div>') +
+      '</div></div>' +
+  '</div></section>';
+}
+
+function viewProduct(){
+  var p = prod(S.pid);
+  if (!p) return viewShop();
+  var related = DB.products.filter(function(x){ return x.cat === p.cat && x.id !== p.id; }).slice(0,4);
+  if (related.length < 4) related = DB.products.filter(function(x){ return x.id !== p.id; }).slice(0,4);
+
+  return '<div class="wrap"><div class="crumb"><button data-nav="home">Home</button><span>&mdash;</span>' +
+    '<button data-cat="' + p.cat + '">' + esc(catName(p.cat)) + '</button><span>&mdash;</span><span>' + esc(p.name) + '</span></div>' +
+  '<div class="pdp">' +
+    '<div class="pgal">' +
+      '<div class="media zoomwrap" id="zoom">' + art(p.motif, p.tone, S.thumb) + '</div>' +
+      '<div class="zoomhint">Hover to magnify</div>' +
+      '<div class="thumbs">' + [0,1,2].map(function(i){
+        return '<button data-thumb="' + i + '" data-on="' + (S.thumb===i) + '">' + art(p.motif, p.tone, i) + '</button>'; }).join('') + '</div>' +
+    '</div>' +
+    '<div>' +
+      '<span class="lbl">' + esc(catName(p.cat)) + '</span>' +
+      '<h1>' + esc(p.name) + '</h1>' +
+      '<div class="price tnum">' + inr(p.price) + '<small>Inclusive of taxes</small></div>' +
+      '<p class="desc">' + esc(p.desc) + '</p>' +
+      '<dl class="specs">' +
+        '<div><dt>Purity</dt><dd>' + esc(p.purity) + ' &middot; BIS 916</dd></div>' +
+        '<div><dt>Metal</dt><dd>' + esc(p.metal) + '</dd></div>' +
+        '<div><dt>Weight</dt><dd>' + esc(p.weight) + '</dd></div>' +
+        '<div><dt>Stones</dt><dd>' + esc(p.stones) + '</dd></div>' +
+        '<div><dt>Availability</dt><dd>' + (p.stock > 0 ? 'In stock, ' + p.stock + ' piece' + (p.stock>1?'s':'') : 'Made to order') + '</dd></div>' +
+        '<div><dt>Certification</dt><dd>Hallmark &amp; HUID</dd></div>' +
+      '</dl>' +
+      '<div class="buyrow">' +
+        '<div class="qty"><button data-q="-1" aria-label="Reduce">&minus;</button><span class="tnum" id="pq">1</span><button data-q="1" aria-label="Increase">+</button></div>' +
+        '<button class="btn brass" data-add="' + p.id + '">Add to cart</button>' +
+        '<button class="btn ghost" data-act="enquire">Enquire</button>' +
+      '</div>' +
+      '<div class="trustrow">' +
+        '<div>' + icon('shield') + 'Hallmarked</div>' +
+        '<div>' + icon('truck') + 'Insured delivery</div>' +
+        '<div>' + icon('gem') + 'Lifetime polish</div>' +
+      '</div>' +
+      '<div class="acc">' +
+        '<details open><summary>Delivery &amp; insurance</summary><div class="body">Dispatched within two working days of payment confirmation, by insured courier with signature on delivery. Delivery across India is free above ' + inr(50000) + ', and the tracking number reaches you on WhatsApp.</div></details>' +
+        '<details><summary>Returns &amp; exchange</summary><div class="body"><p>Sold on a no return, no exchange basis, as is standard for hallmarked and made-to-order jewellery.</p><ul><li>Manufacturing defects are repaired or replaced within seven days.</li><li>Buy-back against the day&rsquo;s rate at the showroom, with the original invoice.</li><li>Resizing of rings and bangles is free for the first year.</li></ul></div></details>' +
+        '<details><summary>Certification</summary><div class="body">Every piece carries the BIS 916 hallmark, the assaying centre mark and a unique HUID. Diamond pieces travel with an IGI certificate, and the invoice records gross weight, net weight and stone weight separately.</div></details>' +
+      '</div>' +
+    '</div>' +
+  '</div></div>' +
+  '<section class="band sand"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">You may also like</span><h2>More from ' + esc(catName(p.cat)) + '</h2></div></div>' +
+    '<div class="grid g4">' + related.map(pcard).join('') + '</div>' +
+  '</div></section>';
+}
+
+function viewBridal(){
+  var list = DB.products.filter(function(p){ return p.cat === 'c1'; });
+  return '<section class="hero"><div class="wrap">' +
+    '<div><span class="lbl">Wedding season 2026</span>' +
+      '<h1>The bridal <em>trousseau</em>, planned with you.</h1>' +
+      '<p class="lede">Book a private appointment at the showroom and we will lay out the full set, match it to the outfit, and hold it until the date.</p>' +
+      '<div class="cta"><button class="btn brass" data-act="enquire">Book an appointment</button>' +
+        '<button class="btn onDark" data-nav="shop">See the collection</button></div>' +
+      '<div class="assure"><div><b>3 weeks</b><span>Typical making time</span></div>' +
+        '<div><b>Private</b><span>Upstairs viewing room</span></div>' +
+        '<div><b>Altered</b><span>Length &amp; fit included</span></div></div>' +
+    '</div>' +
+    '<div class="heroart"><div class="media">' + art('set','dark',1) + '</div>' +
+      '<div class="plate"><b>By appointment</b><span>Tuesday closed</span></div></div>' +
+  '</div></section>' +
+  '<section class="band"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">Bridal sets</span><h2>Ready to wear, ready to alter</h2>' +
+      '<p>Each set can be altered in length, and the centre motif detached for lighter wear afterwards.</p></div></div>' +
+    '<div class="grid g3">' + list.map(pcard).join('') + '</div>' +
+  '</div></section>';
+}
+
+function viewStory(){
+  return '<section class="band dark" style="padding-block:96px"><div class="wrap">' +
+    '<div style="max-width:60ch"><span class="lbl" style="color:var(--brass-l);display:block;margin-bottom:20px">Our story</span>' +
+    '<h2 style="font-size:clamp(30px,4.6vw,50px);line-height:1.06;color:#F6EEE2">Three generations, one <em style="font-style:italic;color:var(--brass-l)">address</em>.</h2>' +
+    '<p style="color:#A29586;margin-top:24px;font-size:16px">Bharat Jewellers opened in Sector 14 in 1974 with two karigars and a single showcase. The workshop is still on the first floor, above the shop, and most of what you see downstairs was made twenty feet from where you are standing.</p>' +
+    '<p style="color:#A29586;margin-top:16px;font-size:16px">We stayed small on purpose. It means the person who takes your order is usually the person who will weigh the piece, and the family that bought a wedding set from us in 1991 brings their daughter in now.</p></div>' +
+  '</div></section>' +
+  '<section class="band"><div class="wrap"><div class="pillars">' +
+    '<article><span class="num">I</span><h3>The workshop upstairs</h3><p>Eleven karigars, most of whom have been with us for over a decade. Polki setting, enamel and filigree are all done in house.</p></article>' +
+    '<article><span class="num">II</span><h3>Bought back, always</h3><p>Anything bought here can be exchanged or sold back against the day&rsquo;s rate, with the original invoice, for as long as we are open.</p></article>' +
+    '<article><span class="num">III</span><h3>Open six days</h3><p>Sector 14 Market, Gurugram. Eleven to eight, closed on Tuesday. Walk in, or call ahead for the bridal room.</p></article>' +
+  '</div></div></section>' +
+  '<section class="band sand"><div class="wrap">' +
+    '<div class="shead"><div><span class="lbl">From the showcase</span><h2>A few of our own favourites</h2></div>' +
+      '<button class="link" data-nav="shop">View collection</button></div>' +
+    '<div class="grid g4">' + DB.products.slice(0,4).map(pcard).join('') + '</div>' +
+  '</div></section>';
+}
+
+function footer(){
+  return '<footer class="site"><div class="wrap"><div class="fgrid2">' +
+    '<div><div class="bnm">Jewellery Palace BJS</div>' +
+      '<p class="desc">Goldsmiths in Gurugram since 1974. Hallmarked gold, weights on the invoice, and a counter you can walk into.</p>' +
+      '<p class="desc" style="margin-top:16px">Sector 14 Market, Gurugram 122001<br>+91 98765 43210<br>11am to 8pm, closed Tuesday</p></div>' +
+    '<div><h5>Shop</h5><ul>' + DB.cats.slice(0,5).map(function(c){ return '<li><button data-cat="' + c.id + '">' + esc(c.name) + '</button></li>'; }).join('') + '</ul></div>' +
+    '<div><h5>The shop</h5><ul>' +
+      '<li><button data-nav="story">Our story</button></li>' +
+      '<li><button data-nav="bridal">Bridal room</button></li>' +
+      '<li><button data-act="enquire">WhatsApp us</button></li>' +
+      '<li><button data-act="enquire">Book an appointment</button></li></ul></div>' +
+    '<div><h5>Policies</h5><ul>' +
+      '<li><button data-act="policy">No return, no exchange</button></li>' +
+      '<li><button data-act="policy">Hallmark &amp; HUID</button></li>' +
+      '<li><button data-act="policy">Buy-back terms</button></li>' +
+      '<li><button data-mode="admin">Shop login</button></li></ul></div>' +
+  '</div><div class="copy"><span>&copy; 2026 Jewellery Palace BJS</span>' +
+    '<span>Prototype by NuForge Labs</span></div></div></footer>';
+}
+
+/* ---------- cart drawer ---------- */
+function drawer(){
+  if (!S.drawer) return '';
+  var body = S.cart.length ? S.cart.map(function(c){
+      var p = prod(c.pid); if (!p) return '';
+      return '<div class="citem"><span class="media">' + art(p.motif, p.tone, 0) + '</span>' +
+        '<div style="min-width:0"><div class="nm">' + esc(p.name) + '</div>' +
+          '<div class="mt">' + esc(p.purity) + ' &middot; ' + esc(p.weight) + '</div>' +
+          '<div class="row"><div class="qty"><button data-cq="' + p.id + '|-1">&minus;</button><span class="tnum">' + c.qty + '</span><button data-cq="' + p.id + '|1">+</button></div>' +
+            '<span class="tnum" style="font-size:14px">' + inr(p.price*c.qty) + '</span></div>' +
+          '<button class="link" data-rmcart="' + p.id + '" style="margin-top:10px;font-size:9.5px;color:var(--faint)">Remove</button>' +
+        '</div></div>';
+    }).join('')
+    : '<div style="text-align:center;padding:70px 10px"><p style="color:var(--soft)">Your cart is empty.</p>' +
+      '<button class="btn ghost sm" data-nav="shop" style="margin-top:20px">Browse the collection</button></div>';
+  var foot = S.cart.length ? '<footer>' +
+      '<div class="sumrow"><span>Subtotal</span><span class="tnum">' + inr(cartTotal()) + '</span></div>' +
+      '<div class="sumrow"><span>Insured delivery</span><span style="color:var(--ok)">Free</span></div>' +
+      '<div class="sumrow big"><span>Total</span><span class="tnum">' + inr(cartTotal()) + '</span></div>' +
+      '<button class="btn brass" style="width:100%;margin-top:18px" data-act="checkout">Proceed to checkout</button>' +
+      '<p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);text-align:center;margin-top:14px;font-weight:500">Pay by UPI or bank transfer</p></footer>' : '';
+  return '<div class="overlay" data-act="close"></div><aside class="drawer">' +
+    '<header><h3>Your cart' + (cartCount() ? ' (' + cartCount() + ')' : '') + '</h3><button class="xbtn" data-act="close" aria-label="Close">&times;</button></header>' +
+    '<div class="items">' + body + '</div>' + foot + '</aside>';
+}
+
+/* ---------- checkout ---------- */
+function fld(name, label, ph, wide, type){
+  var v = S.form[name] || '', e = S.formErr[name];
+  return '<div class="field' + (wide?' full':'') + '"><label for="f_' + name + '">' + label + '</label>' +
+    '<input id="f_' + name + '" data-form="' + name + '" type="' + (type||'text') + '" placeholder="' + ph + '" value="' + esc(v) + '"' +
+    (e ? ' style="border-color:var(--rose)"' : '') + '>' + (e ? '<span class="err">' + e + '</span>' : '') + '</div>';
+}
+
+function orderSummary(){
+  return '<aside class="osum"><h4>Order summary</h4>' +
+    S.cart.map(function(c){ var p = prod(c.pid); if (!p) return '';
+      return '<div class="oline"><span class="media">' + art(p.motif, p.tone, 0) + '</span>' +
+        '<span class="nm">' + esc(p.name) + '<small>Qty ' + c.qty + '</small></span>' +
+        '<span class="tnum">' + inr(p.price*c.qty) + '</span></div>'; }).join('') +
+    '<div style="border-top:1px solid var(--line);margin-top:16px;padding-top:16px">' +
+      '<div class="sumrow"><span>Subtotal</span><span class="tnum">' + inr(cartTotal()) + '</span></div>' +
+      '<div class="sumrow"><span>Insured delivery</span><span style="color:var(--ok)">Free</span></div>' +
+      '<div class="sumrow big"><span>To pay</span><span class="tnum">' + inr(cartTotal()) + '</span></div></div>' +
+    '<div class="note"><span>Orders are confirmed once the shop matches your payment against the bank account, usually within a few working hours.</span></div>' +
+  '</aside>';
+}
+
+function viewCheckout(){
+  if (!S.cart.length) return '<div class="wrap"><div class="empty" style="margin-block:90px"><h3>Your cart is empty</h3><p>Add a piece before checking out.</p><button class="btn ghost sm" data-nav="shop">Browse the collection</button></div></div>';
+  var st = [['Your details','Where it ships'],['Payment','UPI or bank transfer'],['Confirm','Upload the receipt']];
+  var steps = '<div class="steps">' + st.map(function(s,i){
+    return '<div data-on="' + (S.coStep===i+1) + '"><span class="n">Step ' + (i+1) + '</span><b>' + s[0] + '</b><p>' + s[1] + '</p></div>'; }).join('') + '</div>';
+
+  var main;
+  if (S.coStep === 1){
+    main = '<div class="panel"><h3>Where should it go?</h3><p class="sub">We confirm this address on WhatsApp before dispatch.</p>' +
+      '<div class="fgrid">' + fld('name','Full name','Meera Raghavan') + fld('phone','Mobile number','98xxx xxxxx','','tel') +
+        fld('email','Email','meera@example.com',true,'email') + fld('addr','Address','Flat, building, street',true) +
+        fld('city','City','Gurugram') + fld('pin','PIN code','122001') + '</div>' +
+      '<div style="display:flex;justify-content:flex-end;margin-top:30px"><button class="btn brass" data-act="co-next">Continue to payment</button></div></div>';
+  } else if (S.coStep === 2){
+    main = '<div class="panel"><h3>Pay directly to the shop</h3><p class="sub">Scan the code or transfer to the account below, then come back and upload the receipt.</p>' +
+      '<div class="paybox"><div class="qr">' + qrSVG() + '</div><div style="min-width:0;width:100%">' +
+        '<div class="bankrow"><span>UPI ID</span><b>bjsjewellers@okhdfcbank</b></div>' +
+        '<div class="bankrow"><span>Account name</span><b>Bharat Jewellers</b></div>' +
+        '<div class="bankrow"><span>Account</span><b>5011 2298 4471</b></div>' +
+        '<div class="bankrow"><span>IFSC</span><b>HDFC0001427</b></div>' +
+        '<div class="bankrow"><span>Amount</span><b style="color:var(--brass-l);font-size:17px">' + inr(cartTotal()) + '</b></div>' +
+        '<button class="btn onDark sm" data-act="copy-upi" style="margin-top:18px">Copy UPI ID</button></div></div>' +
+      '<div class="note"><span>Use your own name as the payment note. No gateway sits in between, so the amount you send is the amount credited against your piece.</span></div>' +
+      '<div style="display:flex;justify-content:space-between;gap:12px;margin-top:30px;flex-wrap:wrap">' +
+        '<button class="btn ghost" data-act="co-back">Back</button>' +
+        '<button class="btn brass" data-act="co-next">I have paid, continue</button></div></div>';
+  } else {
+    main = '<div class="panel"><h3>Upload your receipt</h3><p class="sub">A screenshot of the UPI confirmation or the bank transfer reference is enough.</p>' +
+      '<label class="drop' + (S.proofName?' has':'') + '" for="proof">' +
+        (S.proofName ? '<b>' + esc(S.proofName) + '</b><p>Attached. The shop will match it against the account.</p>'
+                     : '<b>Choose a screenshot</b><p>PNG, JPG or PDF, up to 10 MB</p>') +
+        '<input id="proof" type="file" accept="image/*,.pdf"></label>' +
+      '<div class="field full" style="margin-top:24px"><label for="f_ref">Payment reference (optional)</label>' +
+        '<input id="f_ref" data-form="ref" placeholder="UPI transaction ID or UTR" value="' + esc(S.form.ref||'') + '"></div>' +
+      '<div class="note" style="margin-top:24px"><span>No return, no exchange. Hallmarked and made-to-order pieces are not returnable. Manufacturing defects are repaired or replaced within seven days, and resizing is free for the first year.</span></div>' +
+      '<div style="display:flex;justify-content:space-between;gap:12px;margin-top:30px;flex-wrap:wrap">' +
+        '<button class="btn ghost" data-act="co-back">Back</button>' +
+        '<button class="btn brass" data-act="place"' + (S.proofName?'':' disabled') + '>Place order &middot; ' + inr(cartTotal()) + '</button></div></div>';
+  }
+  return '<div class="wrap"><div class="crumb"><button data-nav="home">Home</button><span>&mdash;</span><span>Checkout</span></div>' +
+    steps + '<div class="cogrid">' + main + orderSummary() + '</div></div>';
+}
+
+function viewConfirm(){
+  var o = S.order;
+  if (!o) return viewHome();
+  return '<div class="wrap"><div class="conf">' +
+    '<div class="seal">' + icon('check') + '</div>' +
+    '<h1>Thank you, ' + esc(o.name.split(' ')[0]) + '.</h1>' +
+    '<p>Your receipt is with us. The shop will match it against the account and confirm on WhatsApp at ' + esc(o.phone) + ', usually within a few working hours.</p>' +
+    '<div class="oid">' + o.id + '</div>' +
+    '<div style="display:flex;gap:14px;justify-content:center;margin-top:32px;flex-wrap:wrap">' +
+      '<button class="btn ghost" data-nav="shop">Continue browsing</button>' +
+      '<button class="btn brass" data-mode="admin">See it in the admin portal</button></div>' +
+    '<div class="note" style="text-align:left;margin-top:40px"><span>This order is now sitting in the portal under Orders, waiting for the shop to verify the payment.</span></div>' +
+  '</div></div>';
+}
+
+/* ============================================================
+   ADMIN
+   ============================================================ */
+function adminHeader(){
+  var tabs = [['dash','Dashboard'],['orders','Orders'],['products','Products'],['cats','Categories']];
+  return '<header class="admin"><div class="wrap">' +
+    '<div class="lg"><span class="seal">B</span><span class="ttl">Jewellery Palace BJS<span>Super admin</span></span></div>' +
+    (S.authed ? '<nav class="atabs">' + tabs.map(function(t){
+      return '<button data-tab="' + t[0] + '" data-on="' + (S.adminTab===t[0]) + '">' + t[1] + '</button>'; }).join('') + '</nav>' : '') +
+    '<span class="sp"></span>' +
+    (S.authed ? '<div class="who"><span class="av">RB</span><span>Rakesh Bansal</span>' +
+      '<button class="tbtn" data-act="logout" style="margin-left:10px;border-color:#3B3229;background:none;color:#9A8D7E">Sign out</button></div>' : '') +
+  '</div></header>';
+}
+
+function viewLogin(){
+  return '<div class="wrap"><div class="login">' +
+    '<span class="lbl">Shop login</span><h2>Sign in to the portal</h2>' +
+    '<p class="sub">The control centre for the store: categories, products and orders.</p>' +
+    '<div class="field" style="margin-bottom:22px"><label for="au">Email</label><input id="au" value="owner@jewellerypalacebjs.com"></div>' +
+    '<div class="field" style="margin-bottom:30px"><label for="ap">Password</label><input id="ap" type="password" value="demo1234"></div>' +
+    '<button class="btn brass" style="width:100%" data-act="login">Sign in</button>' +
+    '<p style="font-size:11.5px;color:var(--faint);margin-top:20px;text-align:center">Demo credentials are filled in for you.</p></div></div>';
+}
+
+function viewDash(){
+  var pending = DB.orders.filter(function(o){ return o.status==='pending'; });
+  var low = DB.products.filter(function(p){ return p.stock <= 3; });
+  var recent = DB.orders.slice().reverse().slice(0,5);
+  return '<div class="wrap" style="padding-block:34px 70px">' +
+    '<div style="margin-bottom:30px"><span class="lbl" style="color:var(--brass-d)">30 September 2026</span>' +
+      '<h2 style="font-size:32px;margin-top:12px">Good morning, Rakesh.</h2>' +
+      '<p style="color:var(--soft);margin-top:6px">' + (pending.length
+        ? pending.length + ' payment' + (pending.length>1?'s':'') + ' waiting for your confirmation.'
+        : 'Every payment is verified. Nothing waiting.') + '</p></div>' +
+    '<div class="stats">' +
+      '<div class="stat"><div class="k">Orders</div><div class="v tnum">' + DB.orders.length + '</div><div class="d">All time</div></div>' +
+      '<div class="stat' + (pending.length?' alert':'') + '"><div class="k">Awaiting check</div><div class="v tnum">' + pending.length + '</div><div class="d">Receipts to verify</div></div>' +
+      '<div class="stat"><div class="k">Pieces live</div><div class="v tnum">' + DB.products.length + '</div><div class="d">Across ' + DB.cats.length + ' categories</div></div>' +
+      '<div class="stat"><div class="k">Showcase value</div><div class="v tnum" style="font-size:26px">' + inr(stockValue()) + '</div><div class="d">Stock on hand</div></div>' +
+    '</div>' +
+    '<div class="abox"><header><div><h3>Recent orders</h3><p>Newest first</p></div>' +
+      '<button class="tbtn" data-tab="orders">Open orders</button></header><div class="tablewrap"><table>' +
+      '<thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody>' +
+      recent.map(function(o){
+        return '<tr><td><b style="font-weight:600;letter-spacing:.06em">' + o.id + '</b></td>' +
+          '<td>' + esc(o.name) + '<br><small style="color:var(--faint)">' + esc(o.city) + '</small></td>' +
+          '<td class="tnum">' + o.items.length + '</td><td class="tnum">' + inr(orderTotal(o)) + '</td>' +
+          '<td><span class="pill ' + statusMeta(o.status).pill + '">' + statusMeta(o.status).label + '</span></td>' +
+          '<td><div class="rowacts"><button class="tbtn" data-tab="orders">Open</button></div></td></tr>';
+      }).join('') + '</tbody></table></div></div>' +
+    '<div class="abox"><header><div><h3>Running low</h3><p>Three pieces or fewer</p></div></header><div class="tablewrap"><table>' +
+      '<thead><tr><th>Piece</th><th>Category</th><th>In stock</th><th>Price</th><th></th></tr></thead><tbody>' +
+      (low.length ? low.map(function(p){
+        return '<tr><td><div class="cellnm"><span class="thumb">' + art(p.motif,p.tone,0) + '</span>' +
+          '<span><b>' + esc(p.name) + '</b><small>' + esc(p.purity) + ' &middot; ' + esc(p.weight) + '</small></span></div></td>' +
+          '<td>' + esc(catName(p.cat)) + '</td><td><span class="pill p-low">' + p.stock + ' left</span></td>' +
+          '<td class="tnum">' + inr(p.price) + '</td>' +
+          '<td><div class="rowacts"><button class="tbtn" data-edit="' + p.id + '">Edit</button></div></td></tr>';
+      }).join('') : '<tr><td colspan="5" style="color:var(--faint)">Everything is well stocked.</td></tr>') +
+      '</tbody></table></div></div></div>';
+}
+
+function viewAdminOrders(){
+  var rows = DB.orders.slice().reverse().map(function(o){
+    return '<tr><td><b style="font-weight:600;letter-spacing:.06em">' + o.id + '</b><br><small style="color:var(--faint)">' + esc(o.placed) + '</small></td>' +
+      '<td>' + esc(o.name) + '<br><small style="color:var(--faint)">' + esc(o.phone) + ' &middot; ' + esc(o.city) + '</small></td>' +
+      '<td>' + o.items.map(function(it){ var p = prod(it.pid); return esc(p?p.name:'Removed piece') + ' &times;' + it.qty; }).join('<br>') + '</td>' +
+      '<td class="tnum">' + inr(orderTotal(o)) + '<br><small style="color:var(--faint)">' + esc(o.method) + '</small></td>' +
+      '<td><button class="tbtn" data-proof="' + o.id + '">View receipt</button></td>' +
+      '<td><select class="status" data-ostatus="' + o.id + '">' + STATUSES.map(function(s){
+        return '<option value="' + s.k + '"' + (o.status===s.k?' selected':'') + '>' + s.label + '</option>'; }).join('') + '</select></td></tr>';
+  }).join('');
+  return '<div class="wrap" style="padding-block:34px 70px">' +
+    '<div style="margin-bottom:30px"><span class="lbl" style="color:var(--brass-d)">Orders</span>' +
+      '<h2 style="font-size:32px;margin-top:12px">Every order in one place</h2>' +
+      '<p style="color:var(--soft);margin-top:6px">Check the receipt, then move the order along.</p></div>' +
+    '<div class="abox"><header><div><h3>All orders</h3><p>' + DB.orders.length + ' total, ' +
+      DB.orders.filter(function(o){return o.status==='pending';}).length + ' awaiting check</p></div></header>' +
+      '<div class="tablewrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Amount</th><th>Receipt</th><th>Status</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div></div></div>';
+}
+
+function viewAdminProducts(){
+  var rows = DB.products.map(function(p){
+    return '<tr><td><div class="cellnm"><span class="thumb">' + art(p.motif,p.tone,0) + '</span>' +
+      '<span><b>' + esc(p.name) + '</b><small>' + esc(p.metal) + '</small></span></div></td>' +
+      '<td>' + esc(catName(p.cat)) + '</td><td>' + esc(p.purity) + '</td><td>' + esc(p.weight) + '</td>' +
+      '<td class="tnum"><b style="font-weight:600">' + inr(p.price) + '</b></td>' +
+      '<td><span class="pill ' + (p.stock===0?'p-off':(p.stock<=3?'p-low':'p-live')) + '">' + (p.stock===0?'Sold out':p.stock + ' in stock') + '</span></td>' +
+      '<td><div class="rowacts"><button class="tbtn" data-edit="' + p.id + '">Edit</button>' +
+        '<button class="tbtn danger" data-del="' + p.id + '">Delete</button></div></td></tr>';
+  }).join('');
+  return '<div class="wrap" style="padding-block:34px 70px">' +
+    '<div style="margin-bottom:30px"><span class="lbl" style="color:var(--brass-d)">Catalogue</span>' +
+      '<h2 style="font-size:32px;margin-top:12px">Products</h2>' +
+      '<p style="color:var(--soft);margin-top:6px">Add a piece here and it appears on the storefront straight away.</p></div>' +
+    '<div class="abox"><header><div><h3>All pieces</h3><p>' + DB.products.length + ' live on the storefront</p></div>' +
+      '<button class="btn brass sm" data-act="new-product">Add a piece</button></header><div class="tablewrap"><table>' +
+      '<thead><tr><th>Piece</th><th>Category</th><th>Purity</th><th>Weight</th><th>Price</th><th>Stock</th><th></th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table></div></div></div>';
+}
+
+function viewAdminCats(){
+  var rows = DB.cats.map(function(c){
+    var n = DB.products.filter(function(p){ return p.cat === c.id; }).length;
+    return '<tr><td><div class="cellnm"><span class="thumb">' + art(c.motif,'t1',0) + '</span>' +
+      '<span><b>' + esc(c.name) + '</b><small>/' + esc(c.slug) + '</small></span></div></td>' +
+      '<td style="color:var(--soft);max-width:360px">' + esc(c.blurb) + '</td><td class="tnum">' + n + '</td>' +
+      '<td><div class="rowacts"><button class="tbtn" data-ecat="' + c.id + '">Edit</button>' +
+        '<button class="tbtn danger" data-dcat="' + c.id + '">Delete</button></div></td></tr>';
+  }).join('');
+  return '<div class="wrap" style="padding-block:34px 70px">' +
+    '<div style="margin-bottom:30px"><span class="lbl" style="color:var(--brass-d)">Structure</span>' +
+      '<h2 style="font-size:32px;margin-top:12px">Categories</h2>' +
+      '<p style="color:var(--soft);margin-top:6px">Rename, add or remove categories yourself, no developer needed.</p></div>' +
+    '<div class="abox"><header><div><h3>All categories</h3><p>' + DB.cats.length + ' live</p></div>' +
+      '<button class="btn brass sm" data-act="new-cat">Add a category</button></header><div class="tablewrap"><table>' +
+      '<thead><tr><th>Category</th><th>Description</th><th>Pieces</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></div></div>';
+}
+
+/* ---------- modals ---------- */
+function modalProduct(p){
+  var isNew = !p;
+  var d = p || { name:'', cat:(DB.cats[0]?DB.cats[0].id:''), price:100000, purity:'22KT', metal:'Yellow Gold',
+                 weight:'10.0 g', stones:'None', tone:'t1', motif:'necklace', stock:5, desc:'' };
+  var opts = function(list, cur){ return list.map(function(v){ return '<option' + (cur===v?' selected':'') + '>' + v + '</option>'; }).join(''); };
+  return '<div class="modal"><div class="overlay" data-act="close-modal"></div><div class="sheet">' +
+    '<header><h3>' + (isNew?'Add a piece':'Edit piece') + '</h3><button class="xbtn" data-act="close-modal">&times;</button></header>' +
+    '<div class="bd"><div class="fgrid">' +
+      '<div class="field full"><label for="m_name">Name</label><input id="m_name" value="' + esc(d.name) + '" placeholder="Kundan Rani Haar"></div>' +
+      '<div class="field"><label for="m_cat">Category</label><select id="m_cat">' + DB.cats.map(function(c){
+        return '<option value="' + c.id + '"' + (d.cat===c.id?' selected':'') + '>' + esc(c.name) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label for="m_price">Price (INR)</label><input id="m_price" type="number" step="1000" value="' + d.price + '"></div>' +
+      '<div class="field"><label for="m_purity">Purity</label><select id="m_purity">' + opts(['22KT','18KT'], d.purity) + '</select></div>' +
+      '<div class="field"><label for="m_metal">Metal</label><select id="m_metal">' + opts(['Yellow Gold','Rose Gold','White Gold'], d.metal) + '</select></div>' +
+      '<div class="field"><label for="m_weight">Weight</label><input id="m_weight" value="' + esc(d.weight) + '" placeholder="12.6 g"></div>' +
+      '<div class="field"><label for="m_stock">Stock</label><input id="m_stock" type="number" min="0" value="' + d.stock + '"></div>' +
+      '<div class="field full"><label for="m_stones">Stones</label><input id="m_stones" value="' + esc(d.stones) + '" placeholder="Uncut polki 3.2 ct"></div>' +
+      '<div class="field"><label for="m_motif">Placeholder artwork</label><select id="m_motif">' +
+        ['necklace','bangle','earring','ring','pendant','set'].map(function(m){
+          return '<option value="' + m + '"' + (d.motif===m?' selected':'') + '>' + m.charAt(0).toUpperCase()+m.slice(1) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label for="m_tone">Backdrop</label><select id="m_tone">' +
+        [['t1','Champagne'],['t2','Blush'],['t3','Stone']].map(function(t){
+          return '<option value="' + t[0] + '"' + (d.tone===t[0]?' selected':'') + '>' + t[1] + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field full"><label for="m_desc">Description</label><textarea id="m_desc" rows="3">' + esc(d.desc) + '</textarea></div>' +
+    '</div><div class="note" style="margin-top:22px"><span>Real photography replaces the placeholder artwork at build time. Everything else on this form is what the shop fills in day to day.</span></div></div>' +
+    '<div class="ft"><button class="btn ghost sm" data-act="close-modal">Cancel</button>' +
+      '<button class="btn brass sm" data-save-product="' + (isNew?'new':p.id) + '">' + (isNew?'Add to storefront':'Save changes') + '</button></div></div></div>';
+}
+
+function modalCat(c){
+  var isNew = !c, d = c || { name:'', blurb:'', motif:'necklace' };
+  return '<div class="modal"><div class="overlay" data-act="close-modal"></div><div class="sheet" style="max-width:500px">' +
+    '<header><h3>' + (isNew?'Add a category':'Edit category') + '</h3><button class="xbtn" data-act="close-modal">&times;</button></header>' +
+    '<div class="bd"><div class="fgrid">' +
+      '<div class="field full"><label for="c_name">Name</label><input id="c_name" value="' + esc(d.name) + '" placeholder="Anklets"></div>' +
+      '<div class="field full"><label for="c_blurb">Short description</label><input id="c_blurb" value="' + esc(d.blurb) + '" placeholder="Shown under the category on the storefront"></div>' +
+      '<div class="field full"><label for="c_motif">Icon</label><select id="c_motif">' +
+        ['necklace','bangle','earring','ring','pendant','set'].map(function(m){
+          return '<option value="' + m + '"' + (d.motif===m?' selected':'') + '>' + m.charAt(0).toUpperCase()+m.slice(1) + '</option>'; }).join('') + '</select></div>' +
+    '</div></div><div class="ft"><button class="btn ghost sm" data-act="close-modal">Cancel</button>' +
+      '<button class="btn brass sm" data-save-cat="' + (isNew?'new':c.id) + '">' + (isNew?'Add category':'Save changes') + '</button></div></div></div>';
+}
+
+function modalProof(o){
+  return '<div class="modal"><div class="overlay" data-act="close-modal"></div><div class="sheet" style="max-width:480px">' +
+    '<header><h3>Payment receipt</h3><button class="xbtn" data-act="close-modal">&times;</button></header>' +
+    '<div class="bd"><div class="proof"><div class="shot">' +
+      '<div class="hd"><span>' + esc(o.method) + '</span><span>' + esc(o.placed.split(',')[0]) + '</span></div>' +
+      '<div class="amt tnum">' + inr(orderTotal(o)) + '</div>' +
+      '<div class="ln"><span>To</span><span>Bharat Jewellers</span></div>' +
+      '<div class="ln"><span>From</span><span>' + esc(o.name) + '</span></div>' +
+      '<div class="ln"><span>Reference</span><span>' + o.id.replace('BJS-','TXN') + '4471</span></div>' +
+      '<div class="ln"><span>Status</span><span style="color:var(--ok)">Successful</span></div></div>' +
+      '<div class="fn">' + esc(o.proof) + '</div></div>' +
+    '<div class="note" style="margin-top:22px"><span>Match this against the bank statement before confirming.</span></div></div>' +
+    '<div class="ft"><button class="btn ghost sm" data-act="close-modal">Close</button>' +
+      '<button class="btn brass sm" data-confirmpay="' + o.id + '">Confirm payment</button></div></div></div>';
+}
+
+function modalConfirm(cfg){
+  return '<div class="modal"><div class="overlay" data-act="close-modal"></div><div class="sheet" style="max-width:440px">' +
+    '<header><h3>' + esc(cfg.title) + '</h3><button class="xbtn" data-act="close-modal">&times;</button></header>' +
+    '<div class="bd"><p style="font-size:14.5px;color:var(--soft)">' + cfg.body + '</p></div>' +
+    '<div class="ft"><button class="btn ghost sm" data-act="close-modal">Cancel</button>' +
+      '<button class="btn sm" style="background:var(--rose);border-color:var(--rose)" data-doconfirm="' + cfg.act + '">' + esc(cfg.cta) + '</button></div></div></div>';
+}
+
+function guide(){
+  if (!S.guide) return '<button class="guidebtn" data-act="guide">' +
+    '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></svg>Demo guide</button>';
+  return '<div class="guide"><header><b>Try the demo</b><button class="xbtn" data-act="guide">&times;</button></header><ol>' +
+    '<li><b>Browse the collection.</b> Filter by category, metal or budget. <button class="link" data-guide="shop">Open</button></li>' +
+    '<li><b>Open a piece.</b> Hover the image to magnify, switch between the three views.</li>' +
+    '<li><b>Add to cart and check out.</b> Three steps, ending at the UPI QR and bank details.</li>' +
+    '<li><b>Upload a receipt.</b> Any image will do. The order lands in the portal.</li>' +
+    '<li><b>Open the admin portal.</b> Verify the payment, add a piece, and watch it appear on the storefront. <button class="link" data-mode="admin">Open</button></li>' +
+  '</ol><div class="ft">Artwork stands in for photography. Everything else is working.</div></div>';
+}
+
+/* ============================================================
+   RENDER + EVENTS
+   ============================================================ */
+function render(){
+  GID = 0;
+  var html;
+  if (S.mode === 'admin'){
+    document.body.classList.add('adminbody');
+    html = '<div class="stack">' + protoBar() + adminHeader() + '</div>';
+    if (!S.authed) html += viewLogin();
+    else if (S.adminTab === 'orders') html += viewAdminOrders();
+    else if (S.adminTab === 'products') html += viewAdminProducts();
+    else if (S.adminTab === 'cats') html += viewAdminCats();
+    else html += viewDash();
+  } else {
+    document.body.classList.remove('adminbody');
+    html = '<div class="stack">' + protoBar() + header() + '</div>';
+    if (S.route === 'shop') html += viewShop();
+    else if (S.route === 'product') html += viewProduct();
+    else if (S.route === 'bridal') html += viewBridal();
+    else if (S.route === 'story') html += viewStory();
+    else if (S.route === 'checkout') html += viewCheckout();
+    else if (S.route === 'confirm') html += viewConfirm();
+    else html += viewHome();
+    html += footer();
+  }
+  el('app').innerHTML = html;
+  el('layer').innerHTML = (S.mode === 'store' ? drawer() : '') + (S.modal || '') + guide();
+  wireZoom();
+  if (S.focusId){
+    var f = el(S.focusId);
+    if (f){ f.focus(); if (f.setSelectionRange && f.type !== 'range'){ try { var v = f.value.length; f.setSelectionRange(v,v); } catch(e){} } }
+    S.focusId = null;
+  }
+}
+
+function wireZoom(){
+  var z = el('zoom');
+  if (!z) return;
+  z.addEventListener('mousemove', function(e){
+    var r = z.getBoundingClientRect(), svg = z.querySelector('svg');
+    if (svg) svg.style.transformOrigin = ((e.clientX-r.left)/r.width*100) + '% ' + ((e.clientY-r.top)/r.height*100) + '%';
+  });
+  z.addEventListener('mouseenter', function(){ z.classList.add('on'); });
+  z.addEventListener('mouseleave', function(){ z.classList.remove('on'); });
+  z.addEventListener('click', function(){ z.classList.toggle('on'); });
+}
+
+function addToCart(pid, qty){
+  var line = null;
+  for (var i=0;i<S.cart.length;i++) if (S.cart[i].pid === pid) line = S.cart[i];
+  if (line) line.qty += qty; else S.cart.push({ pid:pid, qty:qty });
+}
+
+function validateDetails(){
+  S.formErr = {};
+  var need = { name:'Please enter a name', phone:'We need a number to confirm on WhatsApp',
+               addr:'Please enter the address', city:'Please enter the city', pin:'Please enter the PIN code' };
+  for (var k in need) if (!String(S.form[k]||'').trim()) S.formErr[k] = need[k];
+  if (S.form.pin && !/^\d{6}$/.test(String(S.form.pin).trim())) S.formErr.pin = 'A PIN code is six digits';
+  if (S.form.phone && String(S.form.phone).replace(/\D/g,'').length < 10) S.formErr.phone = 'Enter a ten-digit mobile number';
+  for (var e in S.formErr) return false;
+  return true;
+}
+
+function placeOrder(){
+  var o = {
+    id: 'BJS-' + (24820 + (DB.orders.length - 3)),
+    name: S.form.name || 'Guest', phone: S.form.phone || '', city: S.form.city || '',
+    items: S.cart.map(function(c){ return { pid:c.pid, qty:c.qty }; }),
+    status: 'pending', proof: S.proofName || 'receipt.jpg',
+    placed: '30 Sep 2026, ' + new Date().toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'}),
+    method: 'UPI'
+  };
+  DB.orders.push(o);
+  S.cart.forEach(function(c){ var p = prod(c.pid); if (p) p.stock = Math.max(0, p.stock - c.qty); });
+  S.order = o; S.cart = []; S.proofName = ''; S.coStep = 1; S.form = {}; S.formErr = {};
+  go('confirm');
+}
+
+function readForm(ids){ var o = {}; ids.forEach(function(id){ var e = el(id); if (e) o[id] = e.value; }); return o; }
+
+function saveProduct(target){
+  var f = readForm(['m_name','m_cat','m_price','m_purity','m_metal','m_weight','m_stock','m_stones','m_motif','m_tone','m_desc']);
+  if (!f.m_name.trim()){ toast('Give the piece a name first'); return; }
+  var data = {
+    name: f.m_name.trim(), cat: f.m_cat, price: Math.max(0, parseInt(f.m_price,10) || 0),
+    purity: f.m_purity, metal: f.m_metal, weight: f.m_weight.trim() || '—',
+    stock: Math.max(0, parseInt(f.m_stock,10) || 0), stones: f.m_stones.trim() || 'None',
+    motif: f.m_motif, tone: f.m_tone,
+    desc: f.m_desc.trim() || 'Hand-finished in the BJS workshop, hallmarked and weighed before dispatch.'
+  };
+  if (target === 'new'){ data.id = 'p' + (Date.now()%100000); DB.products.push(data); toast(data.name + ' is live on the storefront'); }
+  else { var p = prod(target); if (p) for (var k in data) p[k] = data[k]; toast('Saved. The storefront is updated.'); }
+  S.modal = null; render();
+}
+
+function saveCat(target){
+  var f = readForm(['c_name','c_blurb','c_motif']);
+  if (!f.c_name.trim()){ toast('Give the category a name first'); return; }
+  var slug = f.c_name.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  if (target === 'new'){
+    DB.cats.push({ id:'c'+(Date.now()%100000), name:f.c_name.trim(), slug:slug, blurb:f.c_blurb.trim(), motif:f.c_motif });
+    toast('Category added to the storefront');
+  } else {
+    var c = byId(DB.cats, target);
+    if (c){ c.name = f.c_name.trim(); c.slug = slug; c.blurb = f.c_blurb.trim(); c.motif = f.c_motif; }
+    toast('Category saved');
+  }
+  S.modal = null; render();
+}
+
+document.addEventListener('click', function(ev){
+  var t = ev.target.closest('[data-nav],[data-mode],[data-p],[data-cat],[data-act],[data-q],[data-add],[data-thumb],[data-cq],[data-rmcart],[data-rm],[data-tab],[data-edit],[data-del],[data-ecat],[data-dcat],[data-proof],[data-save-product],[data-save-cat],[data-confirmpay],[data-doconfirm],[data-guide]');
+  if (!t) return;
+  var d = t.dataset;
+
+  if (d.nav){ go(d.nav); return; }
+  if (d.mode){ S.mode = d.mode; S.modal = null; S.drawer = false; render(); window.scrollTo({top:0}); return; }
+  if (d.guide){ S.mode = 'store'; S.guide = false; go(d.guide); return; }
+  if (d.p){ go('product', { pid:d.p }); return; }
+  if (d.cat){ S.mode='store'; S.catFilter=[d.cat]; S.metalFilter=[]; S.purityFilter=[]; S.q=''; go('shop'); return; }
+  if (d.thumb !== undefined){ S.thumb = parseInt(d.thumb,10); render(); return; }
+  if (d.add){
+    var qn = el('pq'), n = qn ? parseInt(qn.textContent,10) : 1;
+    addToCart(d.add, n); S.drawer = true; render(); toast('Added to your cart'); return;
+  }
+  if (d.q){ var cur = el('pq'); if (cur) cur.textContent = Math.max(1, parseInt(cur.textContent,10) + parseInt(d.q,10)); return; }
+  if (d.cq){
+    var parts = d.cq.split('|'), line = S.cart.filter(function(c){ return c.pid === parts[0]; })[0];
+    if (line){ line.qty += parseInt(parts[1],10); if (line.qty < 1) S.cart = S.cart.filter(function(c){ return c.pid !== parts[0]; }); }
+    render(); return;
+  }
+  if (d.rmcart){ S.cart = S.cart.filter(function(c){ return c.pid !== d.rmcart; }); render(); return; }
+  if (d.rm){
+    var kind = d.rm.split(':')[0], val = d.rm.slice(kind.length+1);
+    if (kind==='cat') S.catFilter = S.catFilter.filter(function(x){ return x!==val; });
+    else if (kind==='metal') S.metalFilter = S.metalFilter.filter(function(x){ return x!==val; });
+    else if (kind==='purity') S.purityFilter = S.purityFilter.filter(function(x){ return x!==val; });
+    else if (kind==='q') S.q = '';
+    else if (kind==='price') S.maxPrice = 900000;
+    else { S.catFilter=[]; S.metalFilter=[]; S.purityFilter=[]; S.q=''; S.maxPrice=900000; }
+    render(); return;
+  }
+  if (d.tab){ S.adminTab = d.tab; S.modal = null; render(); window.scrollTo({top:0}); return; }
+  if (d.edit){ S.modal = modalProduct(prod(d.edit)); render(); return; }
+  if (d.del){
+    var dp = prod(d.del);
+    S.modal = modalConfirm({ title:'Delete this piece?', cta:'Delete', act:'delp:'+d.del,
+      body:'<b>' + esc(dp?dp.name:'') + '</b> will be removed from the storefront straight away. Past orders keep their record.' });
+    render(); return;
+  }
+  if (d.ecat){ S.modal = modalCat(byId(DB.cats, d.ecat)); render(); return; }
+  if (d.dcat){
+    var dc = byId(DB.cats, d.dcat), cn = DB.products.filter(function(p){ return p.cat === d.dcat; }).length;
+    S.modal = modalConfirm({ title:'Delete this category?', cta:'Delete', act:'delc:'+d.dcat,
+      body:'<b>' + esc(dc?dc.name:'') + '</b> will be removed.' + (cn ? ' Its ' + cn + ' piece' + (cn>1?'s':'') + ' stay in the catalogue but show as uncategorised until you move them.' : '') });
+    render(); return;
+  }
+  if (d.doconfirm){
+    var kk = d.doconfirm.split(':')[0], ii = d.doconfirm.split(':')[1];
+    if (kk === 'delp'){ DB.products = DB.products.filter(function(p){ return p.id !== ii; }); toast('Removed from the storefront'); }
+    else { DB.cats = DB.cats.filter(function(c){ return c.id !== ii; }); toast('Category removed'); }
+    S.modal = null; render(); return;
+  }
+  if (d.proof){ var po = null; DB.orders.forEach(function(o){ if (o.id === d.proof) po = o; }); if (po){ S.modal = modalProof(po); render(); } return; }
+  if (d.confirmpay){
+    DB.orders.forEach(function(o){ if (o.id === d.confirmpay && o.status === 'pending') o.status = 'confirmed'; });
+    S.modal = null; render(); toast('Payment confirmed'); return;
+  }
+  if (d.saveProduct){ saveProduct(d.saveProduct); return; }
+  if (d.saveCat){ saveCat(d.saveCat); return; }
+
+  switch (d.act){
+    case 'cart': S.drawer = true; render(); break;
+    case 'close': S.drawer = false; render(); break;
+    case 'close-modal': S.modal = null; render(); break;
+    case 'mobnav': S.mobileNav = !S.mobileNav; render(); break;
+    case 'guide': S.guide = !S.guide; render(); break;
+    case 'focus-search': S.focusId = 'q'; if (S.route !== 'shop') go('shop'); else render(); break;
+    case 'checkout': S.drawer = false; go('checkout'); break;
+    case 'co-next':
+      if (S.coStep === 1 && !validateDetails()){ render(); toast('A few details are still missing'); break; }
+      S.coStep = Math.min(3, S.coStep+1); render(); window.scrollTo({top:0}); break;
+    case 'co-back': S.coStep = Math.max(1, S.coStep-1); render(); window.scrollTo({top:0}); break;
+    case 'place': placeOrder(); break;
+    case 'copy-upi':
+      try { navigator.clipboard.writeText('bjsjewellers@okhdfcbank').then(
+        function(){ toast('UPI ID copied'); }, function(){ toast('UPI ID: bjsjewellers@okhdfcbank'); }); }
+      catch(e){ toast('UPI ID: bjsjewellers@okhdfcbank'); }
+      break;
+    case 'enquire': toast('WhatsApp the shop on +91 98765 43210'); break;
+    case 'policy': toast('Policy pages are part of the build, not the prototype'); break;
+    case 'login': S.authed = true; S.adminTab = 'dash'; render(); toast('Signed in to the portal'); break;
+    case 'logout': S.authed = false; render(); break;
+    case 'new-product': S.modal = modalProduct(null); render(); break;
+    case 'new-cat': S.modal = modalCat(null); render(); break;
+  }
+});
+
+document.addEventListener('change', function(ev){
+  var t = ev.target;
+  if (t.id === 'sort'){ S.sort = t.value; render(); return; }
+  if (t.dataset && t.dataset.ostatus){
+    DB.orders.forEach(function(o){ if (o.id === t.dataset.ostatus) o.status = t.value; });
+    render(); toast(t.dataset.ostatus + ' moved to “' + statusMeta(t.value).label + '”'); return;
+  }
+  if (t.dataset && t.dataset.f){
+    var arr = t.dataset.f === 'cat' ? S.catFilter : (t.dataset.f === 'metal' ? S.metalFilter : S.purityFilter);
+    var i = arr.indexOf(t.value);
+    if (t.checked && i < 0) arr.push(t.value);
+    if (!t.checked && i >= 0) arr.splice(i,1);
+    render(); return;
+  }
+  if (t.id === 'proof'){ S.proofName = (t.files && t.files[0]) ? t.files[0].name : 'receipt.jpg'; render(); toast('Receipt attached'); return; }
+});
+
+var qTimer = null;
+document.addEventListener('input', function(ev){
+  var t = ev.target;
+  if (t.id === 'q'){ S.q = t.value; clearTimeout(qTimer);
+    qTimer = setTimeout(function(){ S.focusId = 'q'; render(); }, 220); return; }
+  if (t.id === 'price'){ S.maxPrice = parseInt(t.value,10); S.focusId = 'price'; render(); return; }
+  if (t.dataset && t.dataset.form){ S.form[t.dataset.form] = t.value; return; }
+});
+
+document.addEventListener('keydown', function(ev){
+  if (ev.key !== 'Escape') return;
+  if (S.modal){ S.modal = null; render(); }
+  else if (S.drawer){ S.drawer = false; render(); }
+  else if (S.guide){ S.guide = false; render(); }
+});
+
+render();
+setTimeout(function(){ if (!S.guide && !S.guideSeen){ S.guide = true; S.guideSeen = true; render(); } }, 1600);
+})();
+</script>

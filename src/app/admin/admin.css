@@ -1,0 +1,14 @@
+/* Admin-only overrides layered on the shared design system. */
+.adminbody{background:#F5F2ED;min-height:100vh;display:flex;flex-direction:column}
+.adminbody .atabs a{background:none;border:0;padding:8px 14px;cursor:pointer;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:#9A8D7E;display:inline-block}
+.adminbody .atabs a:hover{color:#F2E8DA}
+.adminbody header.admin .lg{text-decoration:none}
+.tablewrap table a{color:var(--brass-d)}
+.adminform .fgrid{gap:22px}
+.adminform{border:1px solid var(--line);background:var(--paper);padding:30px}
+.adminform h3{font-size:22px;margin-bottom:6px}
+.adminform .sub{font-size:13.5px;color:var(--soft);margin-bottom:26px}
+.checkrow{display:flex;align-items:center;gap:10px;font-size:14px}
+.checkrow input{width:16px;height:16px;accent-color:var(--brass)}
+.formactions{display:flex;gap:12px;justify-content:flex-end;margin-top:30px;flex-wrap:wrap}
+.receiptlink{display:inline-flex;align-items:center;gap:6px}
